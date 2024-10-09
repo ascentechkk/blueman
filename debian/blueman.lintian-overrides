@@ -1,0 +1,4 @@
+# blueman-adapters.desktop actually targets MATE and Xfce settings menus
+blueman: desktop-entry-limited-to-environments
+blueman: no-manual-page [usr/libexec/blueman-mechanism]
+blueman: no-manual-page [usr/libexec/blueman-rfcomm-watcher]

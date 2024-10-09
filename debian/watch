@@ -1,0 +1,4 @@
+version=4
+opts=searchmode=plain,uversionmangle=s/\.((beta|alpha)\d*)$/~$1/ \
+  https://api.github.com/repos/blueman-project/blueman/releases \
+  https://github.com/blueman-project/blueman/releases/download/[^/]+/blueman-([^/]+)\.tar\.xz
