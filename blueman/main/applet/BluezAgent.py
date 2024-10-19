@@ -9,6 +9,7 @@ from blueman.bluez.Device import Device
 from blueman.bluez.AgentManager import AgentManager
 from blueman.Sdp import ServiceUUID
 from blueman.gui.Notification import Notification, _NotificationBubble, _NotificationDialog
+from blueman.gui.manager.ManagerDeviceList import ManagerDeviceList
 from blueman.main.Builder import Builder
 from blueman.main.DbusService import DbusService, DbusError
 
@@ -237,6 +238,10 @@ class BluezAgent(DbusService):
 
     def _on_request_authorization(self, object_path: ObjectPath, ok: Callable[[], None],
                                   err: Callable[[BluezErrorCanceled], None]) -> None:
+        device = Device(obj_path=object_path)
+        if ManagerDeviceList.get_device_class(device) == _("Unknown") and device["Icon"] == "input-keyboard":
+            return
+        
         self._on_request_confirmation(object_path, None, ok, err)
 
     def _on_authorize_service(self, object_path: ObjectPath, uuid: str, ok: Callable[[], None],

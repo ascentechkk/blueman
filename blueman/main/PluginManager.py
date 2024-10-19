@@ -10,6 +10,7 @@ from gi.repository import GObject, Gio
 
 from blueman.Functions import bmexit
 from blueman.gui.CommonUi import ErrorDialog
+from blueman.gui.gui_config import disabled_plugins
 from blueman.plugins.BasePlugin import BasePlugin
 from blueman.bluemantyping import GSignals
 from blueman.plugins.errors import PluginException
@@ -80,7 +81,7 @@ class PluginManager(GObject.GObject, Generic[_T]):
         plugins = []
         for root, dirs, files in os.walk(path):
             for f in files:
-                if f.endswith(".py") and not (f.endswith(".pyc") or f.endswith("_.py")):
+                if f not in disabled_plugins and f.endswith(".py") and not (f.endswith(".pyc") or f.endswith("_.py")):
                     plugins.append(f[0:-3])
 
         logging.info(plugins)

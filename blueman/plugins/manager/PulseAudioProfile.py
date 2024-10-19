@@ -85,6 +85,8 @@ class PulseAudioProfile(ManagerPlugin, MenuItemsProvider):
                 if not res:
                     self.parent.infobar_update(_("Failed to change profile to %s" % profile))
 
+            path = device.get_object_path()
+            self.parent.Applet.UpdateLastProfile("(ss)", path, profile)
             pa.set_card_profile(c["index"], profile, on_result)
 
     def generate_menu(self, device: Device, item: Gtk.MenuItem) -> None:

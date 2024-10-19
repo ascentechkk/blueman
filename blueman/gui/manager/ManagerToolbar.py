@@ -29,7 +29,7 @@ class ManagerToolbar:
         self.b_search.connect("clicked", lambda button: blueman.inquiry())
 
         self.b_bond = blueman.builder.get_widget("b_bond", Gtk.ToolButton)
-        self.b_bond.connect("clicked", self.on_action, self.blueman.bond)
+        self.b_bond.connect("clicked", self.on_action, self.blueman.List.on_connect_clicked)
 
         self.b_trust = blueman.builder.get_widget("b_trust", Gtk.ToolButton)
         self.b_trust.connect("clicked", self.on_action, self.blueman.toggle_trust)
@@ -86,8 +86,8 @@ class ManagerToolbar:
             self.b_remove.props.sensitive = False
             self.b_send.props.sensitive = False
         else:
-            row = self.blueman.List.get(tree_iter, "paired", "trusted", "objpush")
-            self.b_bond.props.sensitive = powered and not row["paired"]
+            row = self.blueman.List.get(tree_iter, "connected", "trusted", "objpush")
+            self.b_bond.props.sensitive = powered and not row["connected"]
             self.b_trust.props.sensitive = True
             self.b_remove.props.sensitive = True
             self.b_send.props.sensitive = powered and row["objpush"]

@@ -171,7 +171,7 @@ class RecentConns(AppletPlugin, PowerStateListener):
     def _build_menu_item(self, item: "Item") -> "SubmenuItemDict":
         alias = html.escape(item["alias"])
         mitem: "SubmenuItemDict" = {
-            "text": _("%(service)s on %(device)s") % {"service": item["name"], "device": alias},
+            "text": _("%(device)s") % {"device": alias},
             "markup": True,
             "icon_name": item["mitem"]["icon_name"] if item["mitem"] is not None else item["icon"],
             "sensitive": item["device"] is not None,
