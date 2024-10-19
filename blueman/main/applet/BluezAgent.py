@@ -9,6 +9,7 @@ from blueman.bluez.Device import Device
 from blueman.bluez.AgentManager import AgentManager
 from blueman.Sdp import ServiceUUID
 from blueman.gui.Notification import Notification, _NotificationBubble, _NotificationDialog
+from blueman.gui.ManagerDeviceList import ManagerDeviceList
 from blueman.main.Builder import Builder
 from blueman.main.DbusService import DbusService, DbusError
 
@@ -180,6 +181,10 @@ class BluezAgent(DbusService):
 
     def _on_request_pin_code(self, object_path: ObjectPath, ok: Callable[[str], None],
                              err: Callable[[Union[BluezErrorCanceled, BluezErrorRejected]], None]) -> None:
+        device = Device(obj_path=path)
+        if ManagerDeviceList.get_device_class(device) == _("Unknown"):
+            return
+        
         logging.info("Agent.RequestPinCode")
         dialog_msg = _("Enter PIN code for authentication:")
 
@@ -189,6 +194,10 @@ class BluezAgent(DbusService):
 
     def _on_request_passkey(self, object_path: ObjectPath, ok: Callable[[int], None],
                             err: Callable[[Union[BluezErrorCanceled, BluezErrorRejected]], None]) -> None:
+        device = Device(obj_path=path)
+        if ManagerDeviceList.get_device_class(device) == _("Unknown"):
+            return
+        
         logging.info("Agent.RequestPasskey")
         dialog_msg = _("Enter passkey for authentication:")
         self.ask_passkey(dialog_msg, True, object_path, ok, err)
@@ -196,6 +205,10 @@ class BluezAgent(DbusService):
             self.dialog.present()
 
     def _on_display_passkey(self, object_path: ObjectPath, passkey: int, entered: int) -> None:
+        device = Device(obj_path=path)
+        if ManagerDeviceList.get_device_class(device) == _("Unknown"):
+            return
+        
         logging.info(f"DisplayPasskey ({object_path}, {passkey:d} {entered:d})")
         dev = Device(obj_path=object_path)
         self._devhandlerids[object_path] = dev.connect_signal("property-changed", self._on_device_property_changed)
@@ -208,6 +221,10 @@ class BluezAgent(DbusService):
         self._notification.show()
 
     def _on_display_pin_code(self, object_path: ObjectPath, pin_code: str) -> None:
+        device = Device(obj_path=path)
+        if ManagerDeviceList.get_device_class(device) == _("Unknown"):
+            return
+        
         logging.info(f'DisplayPinCode ({object_path}, {pin_code})')
         dev = Device(obj_path=object_path)
         self._devhandlerids[object_path] = dev.connect_signal("property-changed", self._on_device_property_changed)
@@ -218,6 +235,10 @@ class BluezAgent(DbusService):
 
     def _on_request_confirmation(self, object_path: ObjectPath, passkey: Optional[int], ok: Callable[[], None],
                                  err: Callable[[BluezErrorCanceled], None]) -> None:
+        device = Device(obj_path=path)
+        if ManagerDeviceList.get_device_class(device) == _("Unknown"):
+            return
+        
         def on_confirm_action(action: str) -> None:
             if action == "confirm":
                 ok()
@@ -237,10 +258,18 @@ class BluezAgent(DbusService):
 
     def _on_request_authorization(self, object_path: ObjectPath, ok: Callable[[], None],
                                   err: Callable[[BluezErrorCanceled], None]) -> None:
+        device = Device(obj_path=path)
+        if ManagerDeviceList.get_device_class(device) == _("Unknown"):
+            return
+        
         self._on_request_confirmation(object_path, None, ok, err)
 
     def _on_authorize_service(self, object_path: ObjectPath, uuid: str, ok: Callable[[], None],
                               err: Callable[[BluezErrorRejected], None]) -> None:
+        device = Device(obj_path=path)
+        if ManagerDeviceList.get_device_class(device) == _("Unknown"):
+            return
+        
         def on_auth_action(action: str) -> None:
             logging.info(action)
 

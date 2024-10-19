@@ -146,7 +146,12 @@ class Base(GObject.Object, metaclass=BaseMeta):
             del self.__proxy
 
     def __getitem__(self, key: str) -> Any:
-        return self.get(key)
+        try:
+            return self.get(key)
+        except BluezDBusException as e:
+            logging.debug(e)
+        except Exception as e:
+            logging.debug(f"An unexpected error occured: {e}")
 
     def __setitem__(self, key: str, value: Union[str, int, bool]) -> None:
         self.set(key, value)

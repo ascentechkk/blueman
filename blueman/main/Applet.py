@@ -4,13 +4,14 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gio, GLib, Gtk
 import logging
 import signal
+import gettext as _
 from typing import Any, cast
 from blueman.bluemantyping import ObjectPath
 
 from blueman.Functions import *
 from blueman.bluez.Manager import Manager
 from blueman.bluez.Adapter import AnyAdapter
-from blueman.bluez.Device import AnyDevice
+from blueman.bluez.Device import AnyDevice, Device
 import blueman.plugins.applet
 from blueman.main.PluginManager import PersistentPluginManager
 from blueman.main.DbusService import DbusService
@@ -21,6 +22,7 @@ from blueman.plugins.applet.PowerManager import PowerManager
 from blueman.plugins.applet.RecentConns import RecentConns
 from blueman.plugins.applet.StandardItems import StandardItems
 from blueman.plugins.applet.StatusIcon import StatusIcon
+from blueman.gui.manager.ManagerDeviceList import ManagerDeviceList
 
 
 class BluemanApplet(Gtk.Application):
@@ -51,6 +53,11 @@ class BluemanApplet(Gtk.Application):
         self.DbusSvc = DbusService("org.blueman.Applet", "org.blueman.Applet", "/org/blueman/Applet",
                                    Gio.BusType.SESSION)
         self.DbusSvc.register()
+
+        # Send and receive the device path of the unknown devices with blueman-manager process
+        self.blocked_devices = []
+        self.DbusSvc.add_method("IsDeviceBlocked", ("s"), "b", self.is_device_blocked)
+        self.DbusSvc.add_method("AddBlockedDevice", ("s"), "", self.add_blocked_device)
 
         self.Plugins = Plugins(self)
         self.Plugins.load_plugin()
@@ -99,6 +106,10 @@ class BluemanApplet(Gtk.Application):
             plugin.on_adapter_property_changed(path, key, value)
 
     def _on_device_property_changed(self, _device: AnyDevice, key: str, value: Any, path: ObjectPath) -> None:
+        device = Device(obj_path=path)
+        if ManagerDeviceList.get_device_class(device) == _("Unknown"):
+            return
+
         for plugin in self.Plugins.get_loaded_plugins(AppletPlugin):
             plugin.on_device_property_changed(path, key, value)
 
@@ -122,6 +133,15 @@ class BluemanApplet(Gtk.Application):
         for plugin in self.Plugins.get_loaded_plugins(AppletPlugin):
             plugin.on_device_removed(path)
 
+    def is_device_blocked(self, path: str) -> bool:
+        if path in self.blocked_devices:
+            return True
+        else:
+            return False
+
+    def add_blocked_device(self, path: str) -> None:
+        if path not in blocked_devices:
+            self.blocked_devices.append(path)
 
 class Plugins(PersistentPluginManager[AppletPlugin]):
     def __init__(self, applet: BluemanApplet):

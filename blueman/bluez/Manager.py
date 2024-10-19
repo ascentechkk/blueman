@@ -8,6 +8,7 @@ from blueman.bluez.Device import Device
 from blueman.bluez.errors import DBusNoSuchAdapterError
 from blueman.gobject import SingletonGObjectMeta
 from blueman.bluemantyping import GSignals, BtAddress, ObjectPath
+from blueman.gui.gui_config import visible_device_types
 
 
 class Manager(GObject.GObject, metaclass=SingletonGObjectMeta):
@@ -49,6 +50,10 @@ class Manager(GObject.GObject, metaclass=SingletonGObjectMeta):
         if device_proxy:
             assert isinstance(device_proxy, Gio.DBusProxy)
             object_path = device_proxy.get_object_path()
+
+            if Device(obj_path=object_path)["Icon"] not in visible_device_types:
+                return
+
             logging.debug(f"Device1: {object_path}")
             self.emit('device-created', object_path)
         if battery_proxy:
@@ -70,6 +75,10 @@ class Manager(GObject.GObject, metaclass=SingletonGObjectMeta):
         if device_proxy:
             assert isinstance(device_proxy, Gio.DBusProxy)
             object_path = device_proxy.get_object_path()
+
+            if Device(obj_path=object_path)["Icon"] not in visible_device_types:
+                return
+
             logging.debug(object_path)
             self.emit('device-removed', object_path)
         if battery_proxy:

@@ -296,7 +296,7 @@ class ManagerDeviceMenu(Gtk.Menu):
         if not row["connected"] and show_generic_connect and powered:
             connect_item = create_menuitem(_("<b>_Connect</b>"), "bluetooth-symbolic")
             connect_item.connect("activate", lambda _item: self.connect_service(self.SelectedDevice))
-            connect_item.props.tooltip_text = _("Connects auto connect profiles A2DP source, A2DP sink, and HID")
+            connect_item.props.tooltip_text = _("Connect to the device")
             connect_item.show()
             self.append(connect_item)
         elif row["connected"] and show_generic_connect:
@@ -308,8 +308,12 @@ class ManagerDeviceMenu(Gtk.Menu):
 
         logging.debug(row["alias"])
 
-        items = [item for plugin in self.Blueman.Plugins.get_loaded_plugins(MenuItemsProvider)
-                 for item in plugin.on_request_menu_items(self, self.SelectedDevice, powered)]
+        from blueman.gui.gui_config import hidden_device_menu_plugins
+        items = [
+            item for plugin in self.Blueman.Plugins.get_loaded_plugins(MenuItemsProvider)
+            if type(plugin) not in hidden_device_menu_plugins
+            for item in plugin.on_request_menu_items(self, self.SelectedDevice, powered)
+        ]
 
         connect_items = [i for i in items if i.group == DeviceMenuItem.Group.CONNECT]
         disconnect_items = [i for i in items if i.group == DeviceMenuItem.Group.DISCONNECT]
@@ -353,10 +357,10 @@ class ManagerDeviceMenu(Gtk.Menu):
             self.append(it.item)
 
         if powered:
-            send_item = create_menuitem(_("Send a _File…"), "blueman-send-symbolic")
-            send_item.props.sensitive = False
-            self.append(send_item)
-            send_item.show()
+            # send_item = create_menuitem(_("Send a _File…"), "blueman-send-symbolic")
+            # send_item.props.sensitive = False
+            # self.append(send_item)
+            # send_item.show()
 
             if row["objpush"]:
                 send_item.connect("activate", lambda x: self.Blueman.send(self.SelectedDevice))
@@ -366,14 +370,14 @@ class ManagerDeviceMenu(Gtk.Menu):
             item.show()
             self.append(item)
 
-        item = create_menuitem(_("_Pair"), "blueman-pair-symbolic")
-        item.props.tooltip_text = _("Create pairing with the device")
-        self.append(item)
-        item.show()
-        if not row["paired"]:
-            item.connect("activate", lambda x: self.Blueman.bond(self.SelectedDevice))
-        else:
-            item.props.sensitive = False
+        # item = create_menuitem(_("_Pair"), "bluetooth-symbolic")
+        # item.props.tooltip_text = _("Connect to the device")
+        # self.append(item)
+        # item.show()
+        # if not row["paired"]:
+        #     item.connect("activate", lambda x: self.connect_service(self.SelectedDevice))
+        # else:
+        #     item.props.sensitive = False
 
         if not row["trusted"]:
             item = create_menuitem(_("_Trust"), "blueman-trust-symbolic")

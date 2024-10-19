@@ -18,6 +18,7 @@ from blueman.Constants import PIXMAP_PATH
 from blueman.Functions import launch
 from blueman.Sdp import ServiceUUID, OBEX_OBJPUSH_SVCLASS_ID
 from blueman.gui.GtkAnimation import TreeRowFade, CellFade, AnimBase
+from blueman.gui.MessageDialog import WarningMessageDialog
 from _blueman import ConnInfoReadError, conn_info
 
 import gi
@@ -112,6 +113,13 @@ class ManagerDeviceList(DeviceList):
 
         self.set_search_equal_func(self.search_func)
         self.filter.set_visible_func(self.filter_func)
+
+    # Callback method for the connect button on the toolbar
+    def on_connect_clicked(self, device: Device) -> None:
+        if self.menu == None:
+            self.menu = ManagerDeviceMenu(self.Blueman)
+        if self.menu.show_generic_connect_calc(device['UUIDs']) and Adapter(obj_path=device["Adapter"])["Powered"]:
+            self.menu.connect_service(device)
 
     def _on_settings_changed(self, settings: Gio.Settings, key: str) -> None:
         if key in ('sort-by', 'sort-order'):
@@ -453,6 +461,22 @@ class ManagerDeviceList(DeviceList):
         logging.info(f"{key} {value}")
 
         device = self.get(tree_iter, "device")["device"]
+        path = device.get_object_path()
+
+        if self.get_device_class(device) == _("Unknown"):
+            if key == "Name":
+                self.Blueman.Applet.AddBlockedDevice('(s)', path)
+                name = device["Name"]
+                WarningMessageDialog(name + "can't be used.")
+                self.device_remove_event(path)
+                if self.menu is None:
+                    self.menu = ManagerDeviceMenu(self.Blueman)
+                if self.menu.show_generic_connect_calc(device["UUIDs"]) and device["Connected"]:
+                    self.menu.disconnect_service(device)
+                return
+            else:
+                return
+
 
         if key in ("Blocked", "Connected", "Paired", "Trusted"):
             surface = self._make_device_icon(device["Icon"], device["Paired"], device["Connected"], device["Trusted"],
@@ -481,7 +505,7 @@ class ManagerDeviceList(DeviceList):
             self.set(tree_iter, objpush=has_objpush)
 
         elif key == "Connected":
-            self.set(tree_iter, connected=value)
+            elf.set(tree_iter, connected=value)
 
             if value:
                 self._monitor_power_levels(tree_iter, device)

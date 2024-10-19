@@ -43,8 +43,8 @@ class StandardItems(AppletPlugin, PowerStateListener):
 
         self.parent.Plugins.Menu.add(self, 31)
 
-        self.send = self.parent.Plugins.Menu.add(self, 40, text=_("Send _Files to Device") + "…",
-                                                 icon_name="blueman-send-symbolic", callback=self.on_send)
+        # self.send = self.parent.Plugins.Menu.add(self, 40, text=_("Send _Files to Device") + "…",
+        #                                          icon_name="blueman-send-symbolic", callback=self.on_send)
 
         self.parent.Plugins.Menu.add(self, 51)
 
@@ -52,18 +52,18 @@ class StandardItems(AppletPlugin, PowerStateListener):
                                                     icon_name="bluetooth-symbolic",
                                                     callback=self.on_devices)
 
-        self.adapters = self.parent.Plugins.Menu.add(self, 70, text=_("Adap_ters") + "…",
-                                                     icon_name="bluetooth-symbolic",
-                                                     callback=self.on_adapters)
+        # self.adapters = self.parent.Plugins.Menu.add(self, 70, text=_("Adap_ters") + "…",
+        #                                              icon_name="bluetooth-symbolic",
+        #                                              callback=self.on_adapters)
 
-        self.parent.Plugins.Menu.add(self, 80, text=_("_Local Services") + "…",
-                                     icon_name="document-properties-symbolic",
-                                     callback=self.on_local_services)
+        # self.parent.Plugins.Menu.add(self, 80, text=_("_Local Services") + "…",
+        #                              icon_name="document-properties-symbolic",
+        #                              callback=self.on_local_services)
 
         self.parent.Plugins.Menu.add(self, 81)
 
-        self.parent.Plugins.Menu.add(self, 90, text=_("_Help"), icon_name='help-about-symbolic',
-                                     callback=self.on_about)
+        # self.parent.Plugins.Menu.add(self, 90, text=_("_Help"), icon_name='help-about-symbolic',
+        #                              callback=self.on_about)
 
         self.parent.Plugins.Menu.add(self, 85, text=_("_Plugins"), icon_name="application-x-addon-symbolic",
                                      callback=self.on_plugins)
@@ -75,9 +75,9 @@ class StandardItems(AppletPlugin, PowerStateListener):
             power = True
 
         sensitive = sensitive and self.parent.Manager is not None and power
-        self.send.set_sensitive(sensitive)
+        # self.send.set_sensitive(sensitive)
         self.devices.set_sensitive(sensitive)
-        self.adapters.set_sensitive(sensitive)
+        # self.adapters.set_sensitive(sensitive)
 
     def on_manager_state_changed(self, state: bool) -> None:
         self.change_sensitivity(state)
