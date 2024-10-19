@@ -13,7 +13,6 @@ if TYPE_CHECKING:
     from blueman.main.PulseAudioUtils import CardInfo, CardProfileInfo
     from blueman.plugins.applet.Menu import MenuItem, SubmenuItemDict
 
-
 class AudioProfiles(AppletPlugin):
     __depends__ = ["Menu"]
     __description__ = _("Adds audio profile selector to the status icon menu")
@@ -28,6 +27,14 @@ class AudioProfiles(AppletPlugin):
         pa = PulseAudioUtils()
         pa.connect("event", self.on_pa_event)
         pa.connect("connected", self.on_pa_ready)
+
+        self.default_audio_profile = "handsfree_head_unit"
+        self.last_selected_audio_profile = {}
+
+        self._add_dbus_method("UpdateLastProfile", ("s", "s"), "", self.update_last_profile)
+
+    def update_last_profile(self, path: str, new_profile: str) -> None:
+        self.last_selected_audio_profile[path] = new_profile
 
     def generate_menu(self) -> None:
         devices = self.parent.Manager.get_devices()
@@ -68,6 +75,11 @@ class AudioProfiles(AppletPlugin):
                 if profile["name"] == info["active_profile"]:
                     profile_name = f"<b>{profile_name}</b>"
                     profile_icon = "dialog-ok"
+                try:
+                    if profile["name"] == self.last_selected_audio_profile[path] and profile["name"] != info["active_profile"]:
+                        self.on_activate_profile(device, profile)
+                except Exception as e:
+                    logging.debug(f'An unexpected error occured: {e}')
                 items.append({
                     "text": profile_name,
                     "markup": True,
@@ -78,6 +90,7 @@ class AudioProfiles(AppletPlugin):
                 })
             return items
 
+        path = device.get_object_path()
         info = self._devices[device['Address']]
         idx = max((item.priority[1] for item in self._device_menus.values()), default=-1) + 1
         menu = self._menu.add(self, (42, idx), _("Audio Profiles for %s") % device.display_name,
@@ -104,7 +117,8 @@ class AudioProfiles(AppletPlugin):
         def on_result(res: int) -> None:
             if not res:
                 logging.error(f"Failed to change profile to {profile['name']}")
-
+        path = device.get_object_path()
+        self.last_selected_audio_profile[path] = profile["name"]
         pa.set_card_profile(c["index"], profile["name"], on_result)
 
     def on_pa_event(self, utils: PulseAudioUtils, event: int, idx: int) -> None:
@@ -146,6 +160,8 @@ class AudioProfiles(AppletPlugin):
     def on_device_property_changed(self, path: str, key: str, value: Any) -> None:
         if key == "Connected":
             self.clear_menu()
+            if path not in self.last_selected_audio_profile:
+                self.last_selected_audio_profile[path] = self.default_audio_profile
             self.generate_menu()
 
     def on_manager_state_changed(self, state: bool) -> None:

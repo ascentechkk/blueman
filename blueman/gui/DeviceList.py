@@ -3,6 +3,7 @@ import logging
 from typing import Dict, List, Optional, Any, Callable
 
 from blueman.Functions import adapter_path_to_name
+from blueman.gui.gui_config import visible_device_types
 from blueman.gui.GenericList import GenericList, ListDataDict
 from blueman.Constants import ICON_PATH
 from blueman.bluez.Manager import Manager
@@ -224,6 +225,12 @@ class DeviceList(GenericList):
         device = Device(obj_path=object_path)
         # device belongs to another adapter
         if not self.Adapter or not device['Adapter'] == self.Adapter.get_object_path():
+            return
+
+        if device["Icon"] not in visible_device_types:
+            return
+
+        if self.Blueman.Applet.IsDeviceBlocked('(s)', object_path):
             return
 
         logging.info("adding new device")

@@ -296,7 +296,7 @@ class ManagerDeviceMenu(Gtk.Menu):
         if not row["connected"] and show_generic_connect and powered:
             connect_item = create_menuitem(_("<b>_Connect</b>"), "bluetooth-symbolic")
             connect_item.connect("activate", lambda _item: self.connect_service(self.SelectedDevice))
-            connect_item.props.tooltip_text = _("Connects auto connect profiles A2DP source, A2DP sink, and HID")
+            connect_item.props.tooltip_text = _("Connect to the device")
             connect_item.show()
             self.append(connect_item)
         elif row["connected"] and show_generic_connect:
@@ -308,8 +308,12 @@ class ManagerDeviceMenu(Gtk.Menu):
 
         logging.debug(row["alias"])
 
-        items = [item for plugin in self.Blueman.Plugins.get_loaded_plugins(MenuItemsProvider)
-                 for item in plugin.on_request_menu_items(self, self.SelectedDevice, powered)]
+        from blueman.gui.gui_config import hidden_device_menu_plugins
+        items = []
+        for plugin in self.Blueman.Plugins.get_loaded_plugins(MenuItemsProvider):
+            if type(plugin) not in hidden_device_menu_plugins:
+                for item in plugin.on_request_menu_items(self, self.SelectedDevice, powered):
+                    items.append(item)
 
         connect_items = [i for i in items if i.group == DeviceMenuItem.Group.CONNECT]
         disconnect_items = [i for i in items if i.group == DeviceMenuItem.Group.DISCONNECT]
@@ -332,18 +336,6 @@ class ManagerDeviceMenu(Gtk.Menu):
         btaddress: BtAddress = self.SelectedDevice["Address"]
         generic_autoconnect = (object_path, str(generic_service)) in set(config["services"])
 
-        if row["connected"] or generic_autoconnect or autoconnect_items:
-            self.append(self._create_header(_("<b>Auto-connect:</b>")))
-
-            if row["connected"] or generic_autoconnect:
-                item = Gtk.CheckMenuItem(label=generic_service.name)
-                config.bind_to_menuitem(item, (btaddress, str(generic_service)))
-                item.show()
-                self.append(item)
-
-            for it in sorted(autoconnect_items, key=attrgetter("position")):
-                self.append(it.item)
-
         if (powered and show_generic_connect) or connect_items or disconnect_items or autoconnect_items:
             item = Gtk.SeparatorMenuItem()
             item.show()
@@ -353,27 +345,9 @@ class ManagerDeviceMenu(Gtk.Menu):
             self.append(it.item)
 
         if powered:
-            send_item = create_menuitem(_("Send a _File…"), "blueman-send-symbolic")
-            send_item.props.sensitive = False
-            self.append(send_item)
-            send_item.show()
-
-            if row["objpush"]:
-                send_item.connect("activate", lambda x: self.Blueman.send(self.SelectedDevice))
-                send_item.props.sensitive = True
-
             item = Gtk.SeparatorMenuItem()
             item.show()
             self.append(item)
-
-        item = create_menuitem(_("_Pair"), "blueman-pair-symbolic")
-        item.props.tooltip_text = _("Create pairing with the device")
-        self.append(item)
-        item.show()
-        if not row["paired"]:
-            item.connect("activate", lambda x: self.Blueman.bond(self.SelectedDevice))
-        else:
-            item.props.sensitive = False
 
         if not row["trusted"]:
             item = create_menuitem(_("_Trust"), "blueman-trust-symbolic")

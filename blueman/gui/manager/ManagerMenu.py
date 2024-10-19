@@ -179,7 +179,6 @@ class ManagerMenu:
         assert isinstance(menu, Gtk.Menu)
 
         item = Gtk.RadioMenuItem.new_with_label(self._adapters_group, adapter.get_name())
-        item.show()
         self._adapters_group = item.get_group()
 
         self._itemhandler = item.connect("activate", self.on_adapter_selected, adapter_path)
@@ -215,10 +214,8 @@ class ManagerMenu:
 
         if any(adapter["Powered"] for (_, adapter) in self.adapter_items.values()):
             self.Search.props.visible = True
-            self._adapter_settings.props.visible = True
         else:
             self.Search.props.visible = False
-            self._adapter_settings.props.visible = False
 
     def _on_plugin_dialog_activate(self, _item: Gtk.MenuItem) -> None:
         def cb(_proxy: Gio.DBusProxy, _res: Any, _userdata: Any) -> None:
