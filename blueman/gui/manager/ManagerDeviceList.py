@@ -18,6 +18,7 @@ from blueman.Constants import PIXMAP_PATH
 from blueman.Functions import launch
 from blueman.Sdp import ServiceUUID, OBEX_OBJPUSH_SVCLASS_ID
 from blueman.gui.GtkAnimation import TreeRowFade, CellFade, AnimBase
+from blueman.gui.MessageDialog import WarningMessageDialog
 from _blueman import ConnInfoReadError, conn_info
 
 import gi
@@ -112,6 +113,13 @@ class ManagerDeviceList(DeviceList):
 
         self.set_search_equal_func(self.search_func)
         self.filter.set_visible_func(self.filter_func)
+
+    # Callback method for the connect button on the toolbar
+    def on_connect_clicked(self, device: Device) -> None:
+        if self.menu == None:
+            self.menu = ManagerDeviceMenu(self.Blueman)
+        if self.menu.show_generic_connect_calc(device['UUIDs']) and Adapter(obj_path=device["Adapter"])["Powered"]:
+            self.menu.connect_service(device)
 
     def _on_settings_changed(self, settings: Gio.Settings, key: str) -> None:
         if key in ('sort-by', 'sort-order'):
@@ -320,7 +328,9 @@ class ManagerDeviceList(DeviceList):
 
     def device_remove_event(self, object_path: ObjectPath) -> None:
         tree_iter = self.find_device_by_path(object_path)
-        assert tree_iter is not None
+        
+        if tree_iter is None:
+            return
 
         iter_set, _child_tree_iter = self.filter.convert_child_iter_to_iter(tree_iter)
         if iter_set:
@@ -487,6 +497,18 @@ class ManagerDeviceList(DeviceList):
                 self._monitor_power_levels(tree_iter, device)
             else:
                 self._disable_power_levels(tree_iter)
+
+        elif key == "ServicesResolved":
+            if self.get_device_class(device) == _("Unknown") and device["Icon"] == "input-keyboard":
+                path = device.get_object_path()
+                self.Blueman.Applet.AddBlockedDevice('(s)', path)
+                WarningMessageDialog(device["Alias"] + " can't be used.").show_all()
+                self.device_remove_event(path)
+                if self.menu is None:
+                    self.menu = ManagerDeviceMenu(self.Blueman)
+                if self.menu.show_generic_connect_calc(device["UUIDs"]) and device["Connected"]:
+                    self.menu.disconnect_service(device)
+                    
         elif key == "Name":
             self.set(tree_iter, no_name=False)
             self.filter.refilter()
