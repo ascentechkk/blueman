@@ -5,6 +5,8 @@ Lists of elements to display or hide on Blueman GUI
 """
 
 from blueman.plugins.manager.Notes import Notes
+from blueman.plugins.manager.Services import Services
+
 
 visible_device_types = [
     'audio-headset',
@@ -12,9 +14,12 @@ visible_device_types = [
     'input-mouse'
 ]
 
+
 hidden_device_menu_plugins = [
-    Notes
+    Notes,
+    Services
 ]
+
 
 disabled_plugins = [
     "DhcpClient.py",
@@ -29,6 +34,7 @@ disabled_plugins = [
     "TransferService.py",
     "Notes.py"
 ]
+
 
 hidden_plugins = [
     "DhcpClient",
