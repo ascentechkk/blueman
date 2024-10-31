@@ -3,6 +3,7 @@ import logging
 import os
 import signal
 import sys
+import subprocess as sp
 from blueman.Functions import log_system_info
 from blueman.main.DBusProxies import AppletService
 from gi.repository import Gio, GLib
@@ -65,6 +66,15 @@ class BluemanTray(Gio.Application):
         AppletService().ActivateMenuItem('(ai)', indexes)
 
     def activate_status_icon(self) -> None:
+        try:
+            state: str = sp.check_output(['systemctl', 'is-active', 'bluetooth.service'], text=True).strip()
+        except sp.CalledProcessError as process_error:
+            logging.debug(f'An error occured while checking Bluetooth service status: {process_error}')
+            return
+        
+        if state != 'active':
+            return
+
         AppletService().Activate()
 
     def on_signal(self, _applet: AppletService, _sender_name: str, signal_name: str, args: GLib.Variant) -> None:

@@ -36,78 +36,9 @@ class StandardItems(AppletPlugin, PowerStateListener):
         }
     }
 
-    def on_load(self) -> None:
-        self._plugin_window: Optional[Gtk.ApplicationWindow] = None
-
-        self.parent.Plugins.Menu.add(self, 21)
-
-        self.parent.Plugins.Menu.add(self, 31)
-
-        self.parent.Plugins.Menu.add(self, 51)
-
-        self.devices = self.parent.Plugins.Menu.add(self, 60, text=_("_Devices") + "…",
-                                                    icon_name="bluetooth-symbolic",
-                                                    callback=self.on_devices)
-
-        self.parent.Plugins.Menu.add(self, 81)
-
-        self.parent.Plugins.Menu.add(self, 85, text=_("_Plugins"), icon_name="application-x-addon-symbolic",
-                                     callback=self.on_plugins)
-
-    def change_sensitivity(self, sensitive: bool) -> None:
-        if 'PowerManager' in self.parent.Plugins.get_loaded():
-            power = self.parent.Plugins.PowerManager.get_bluetooth_status()
-        else:
-            power = True
-
-        sensitive = sensitive and self.parent.Manager is not None and power
-        self.devices.set_sensitive(sensitive)
-
-    def on_manager_state_changed(self, state: bool) -> None:
-        self.change_sensitivity(state)
-
-    def on_power_state_changed(self, manager: PowerManager, state: bool) -> None:
-        self.change_sensitivity(state)
-
-    def on_send(self) -> None:
-        launch("blueman-sendto", name=_("File Sender"))
-
     def on_devices(self) -> None:
         m = ManagerService()
         if m.get_name_owner() and self.get_option("toggle-manager-onclick"):
             m.quit()
         else:
             m.activate()
-
-    def on_adapters(self) -> None:
-        launch("blueman-adapters", name=_("Adapter Preferences"))
-
-    def on_local_services(self) -> None:
-        launch("blueman-services", name=_("Service Preferences"))
-
-    def on_about(self) -> None:
-        about = show_about_dialog("Blueman " + _("applet"), run=False)
-
-        im = Gtk.Image(icon_name="application-x-addon-symbolic", pixel_size=16)
-        button = Gtk.Button(label=_("Plugins"), visible=True, image=im)
-
-        button.connect("clicked", lambda _button: self.on_plugins())
-
-        about.action_area.pack_start(button, True, True, 0)
-        about.action_area.reorder_child(button, 0)
-
-        about.run()
-        about.destroy()
-
-    def on_plugins(self) -> None:
-        def on_close(win: Gtk.Window, _event: Gdk.Event) -> bool:
-            win.destroy()
-            self._plugin_window = None
-            return False
-
-        if self._plugin_window:
-            self._plugin_window.present()
-        else:
-            self._plugin_window = PluginDialog(self.parent)
-            self._plugin_window.connect("delete-event", on_close)
-            self._plugin_window.show()

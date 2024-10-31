@@ -154,8 +154,6 @@ class RecentConns(AppletPlugin, PowerStateListener):
 
         def reply() -> None:
             assert item["mitem"] is not None  # https://github.com/python/mypy/issues/2608
-            Notification(_("Connected"), _("Connected to %s") % item["mitem"]["text"],
-                         icon_name=item["icon"]).show()
             item["mitem"]["sensitive"] = True
             self.parent.Plugins.Menu.on_menu_changed()
 

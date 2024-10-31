@@ -109,15 +109,6 @@ class Blueman(Gtk.Application):
                 if self.window is not None:
                     self.window.hide()
 
-                d = ErrorDialog(
-                    _("Connection to BlueZ failed"),
-                    _("Bluez daemon is not running, blueman-manager cannot continue.\n"
-                      "This probably means that there were no Bluetooth adapters detected "
-                      "or Bluetooth daemon was not started."),
-                    icon_name="blueman")
-                d.run()
-                d.destroy()
-
                 # FIXME ui can handle BlueZ start/stop but we should inform user
                 self.quit()
 
@@ -144,7 +135,6 @@ class Blueman(Gtk.Application):
 
                 self.Toolbar = ManagerToolbar(self)
                 self.Menu = ManagerMenu(self)
-                self.Stats = ManagerStats(self)
 
                 if self.List.is_valid_adapter():
                     self.List.populate_devices()

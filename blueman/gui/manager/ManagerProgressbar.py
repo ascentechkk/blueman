@@ -104,7 +104,6 @@ class ManagerProgressbar(GObject.GObject):
         self.button.props.visible = True
 
     def hide(self) -> None:
-        self.Blueman.Stats.hbox.show_all()
         self.progressbar.props.visible = False
         self.eventbox.props.visible = False
         self.button.props.visible = False
