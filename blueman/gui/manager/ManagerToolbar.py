@@ -31,24 +31,8 @@ class ManagerToolbar:
         self.b_bond = blueman.builder.get_widget("b_bond", Gtk.ToolButton)
         self.b_bond.connect("clicked", self.on_action, self.blueman.List.on_connect_clicked)
 
-        self.b_trust = blueman.builder.get_widget("b_trust", Gtk.ToolButton)
-        self.b_trust.connect("clicked", self.on_action, self.blueman.toggle_trust)
-        self.b_trust.set_homogeneous(False)
-
-        self.b_trust.props.label = _("Untrust")
-        (size, nsize) = Gtk.Widget.get_preferred_size(self.b_trust)
-        self.b_trust.props.label = _("Trust")
-        (size2, nsize2) = Gtk.Widget.get_preferred_size(self.b_trust)
-
-        self.b_trust.props.width_request = max(size.width, size2.width)
-
         self.b_remove = blueman.builder.get_widget("b_remove", Gtk.ToolButton)
         self.b_remove.connect("clicked", self.on_action, self.blueman.remove)
-
-        self.b_send = blueman.builder.get_widget("b_send", Gtk.ToolButton)
-        self.b_send.props.sensitive = False
-        self.b_send.connect("clicked", self.on_action, self.blueman.send)
-        self.b_send.set_homogeneous(False)
 
         self.on_adapter_changed(blueman.List, blueman.List.get_adapter_path())
 
@@ -82,23 +66,17 @@ class ManagerToolbar:
         tree_iter = self.blueman.List.selected()
         if tree_iter is None:
             self.b_bond.props.sensitive = False
-            self.b_trust.props.sensitive = False
             self.b_remove.props.sensitive = False
-            self.b_send.props.sensitive = False
         else:
             row = self.blueman.List.get(tree_iter, "connected", "trusted", "objpush")
             self.b_bond.props.sensitive = powered and not row["connected"]
-            self.b_trust.props.sensitive = True
             self.b_remove.props.sensitive = True
-            self.b_send.props.sensitive = powered and row["objpush"]
 
-            icon_name = "blueman-untrust-symbolic" if row["trusted"] else "blueman-trust-symbolic"
-            self.b_trust.props.icon_widget = Gtk.Image(icon_name=icon_name, pixel_size=24, visible=True)
-            self.b_trust.props.label = _("Untrust") if row["trusted"] else _("Trust")
+           
 
     def on_device_propery_changed(self, dev_list: ManagerDeviceList, device: Device, tree_iter: Gtk.TreeIter,
                                   key_value: Tuple[str, object]) -> None:
         key, value = key_value
         if dev_list.compare(tree_iter, dev_list.selected()):
-            if key == "Trusted" or key == "Paired" or key == "UUIDs":
+            if key == "Trusted" or key == "Paired" or key == "UUIDs" or key == "Connected":
                 self.on_device_selected(dev_list, device, tree_iter)

@@ -58,7 +58,7 @@
             <property name="can-focus">False</property>
             <child>
               <object class="GtkMenuItem" id="item_adapter">
-                <property name="visible">True</property>
+                <property name="visible">False</property>
                 <property name="can-focus">False</property>
                 <property name="label" translatable="yes">_Adapter</property>
                 <property name="use-underline">True</property>
@@ -127,7 +127,7 @@
             </child>
             <child>
               <object class="GtkMenuItem" id="item_view">
-                <property name="visible">True</property>
+                <property name="visible">False</property>
                 <property name="can-focus">False</property>
                 <property name="label" translatable="yes">_View</property>
                 <property name="use-underline">True</property>
@@ -327,7 +327,7 @@
             </child>
             <child>
               <object class="GtkToolButton" id="b_trust">
-                <property name="visible">True</property>
+                <property name="visible">False</property>
                 <property name="sensitive">False</property>
                 <property name="can-focus">False</property>
                 <property name="tooltip-text" translatable="yes">Mark/Unmark this device as trusted</property>
@@ -390,12 +390,12 @@
             </child>
             <child>
               <object class="GtkToolItem" id="bluetooth_status">
-                <property name="visible">True</property>
+                <property name="visible">False</property>
                 <property name="can-focus">False</property>
                 <property name="is-important">True</property>
                 <child>
                   <object class="GtkBox" id="bt_status_box">
-                    <property name="visible">True</property>
+                    <property name="visible">False</property>
                     <property name="can-focus">False</property>
                     <property name="spacing">5</property>
                     <child>
@@ -481,7 +481,7 @@
             </child>
             <child>
               <object class="GtkBox" id="status_activity">
-                <property name="visible">True</property>
+                <property name="visible">False</property>
                 <property name="can-focus">False</property>
                 <property name="halign">end</property>
                 <child>

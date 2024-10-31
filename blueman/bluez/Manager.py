@@ -8,7 +8,7 @@ from blueman.bluez.Device import Device
 from blueman.bluez.errors import DBusNoSuchAdapterError
 from blueman.gobject import SingletonGObjectMeta
 from blueman.bluemantyping import GSignals, BtAddress, ObjectPath
-from blueman.gui.gui_config import visible_device_types
+from blueman.gui.gui_config import get_allowed_device
 
 
 class Manager(GObject.GObject, metaclass=SingletonGObjectMeta):
@@ -51,7 +51,7 @@ class Manager(GObject.GObject, metaclass=SingletonGObjectMeta):
             assert isinstance(device_proxy, Gio.DBusProxy)
             object_path = device_proxy.get_object_path()
 
-            if Device(obj_path=object_path)["Icon"] not in visible_device_types:
+            if not get_allowed_device(object_path):
                 return
 
             logging.debug(f"Device1: {object_path}")
@@ -76,7 +76,7 @@ class Manager(GObject.GObject, metaclass=SingletonGObjectMeta):
             assert isinstance(device_proxy, Gio.DBusProxy)
             object_path = device_proxy.get_object_path()
 
-            if Device(obj_path=object_path)["Icon"] not in visible_device_types:
+            if not get_allowed_device(object_path):
                 return
 
             logging.debug(object_path)
