@@ -24,10 +24,12 @@ class RfKill(MechanismPlugin):
         try:
             if state:
                 self.rfkill_bluetooth(state, caller)
-                sp.run(['systemctl', 'start', 'bluetooth.service'], check=True)
+                sp.check_call(['/usr/bin/sudo', '/usr/sbin/modprobe', 'btusb'])
+                sp.check_call(['/usr/bin/systemctl', 'start', 'bluetooth.service'])
                 logging.debug('Started Bluetooth service and unblocked Bluetooth adapter')
             else:
-                sp.run(['systemctl', 'stop', 'bluetooth.service'], check=True)
+                sp.check_call(['/usr/bin/systemctl', 'stop', 'bluetooth.service'])
+                sp.check_call(['/usr/bin/sudo', '/usr/sbin/modprobe', '-r', 'btusb'])
                 self.rfkill_bluetooth(state, caller)
                 logging.debug('Stopped Bluetooth service and blocked Bluetooth adapter')
         except sp.CalledProcessError as process_error:
