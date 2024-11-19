@@ -19,8 +19,6 @@ from blueman.plugins.AppletPlugin import AppletPlugin
 from blueman.plugins.applet.DBusService import DBusService
 from blueman.plugins.applet.Menu import Menu
 from blueman.plugins.applet.PowerManager import PowerManager
-from blueman.plugins.applet.RecentConns import RecentConns
-from blueman.plugins.applet.StandardItems import StandardItems
 from blueman.plugins.applet.StatusIcon import StatusIcon
 from blueman.gui.manager.ManagerDeviceList import ManagerDeviceList
 
@@ -151,14 +149,6 @@ class Plugins(PersistentPluginManager[AppletPlugin]):
     @property
     def PowerManager(self) -> PowerManager:
         return cast(PowerManager, self._plugins["PowerManager"])
-
-    @property
-    def RecentConns(self) -> RecentConns:
-        return cast(RecentConns, self._plugins["RecentConns"])
-
-    @property
-    def StandardItems(self) -> StandardItems:
-        return cast(StandardItems, self._plugins["StandardItems"])
 
     @property
     def StatusIcon(self) -> StatusIcon:

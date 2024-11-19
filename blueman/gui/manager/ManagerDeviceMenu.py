@@ -301,7 +301,29 @@ class ManagerDeviceMenu(Gtk.Menu):
 
         self.SelectedDevice = row["device"]
 
+        show_generic_connect: str = self.show_generic_connect_calc(self.SelectedDevice['UUIDs'])
+
         powered = Adapter(obj_path=self.SelectedDevice["Adapter"])["Powered"]
+
+        if not row['connected'] and show_generic_connect and powered:
+            connect_item: Gtk.ImageMenuItem = create_menuitem(_('_Connect'), 'bluetooth-symbolic')
+            connect_item.connect('activate', lambda _item: self.connect_service(self.SelectedDevice))
+            connect_item.props.tooltip_text: str = _('Connect to this device')
+            connect_item.show()
+            self.append(connect_item)
+        elif row['connected'] and show_generic_connect:
+            connect_item: Gtk.ImageMenuItem = create_menuitem(_('_Disconnect'), 'bluetooth-disabled-symbolic')
+            connect_item.connect('activate', lambda _item: self.disconnect_service(self.SelectedDevice))
+            connect_item.props.tooltip_text: str = _('Disconnect from this device')
+            connect_item.show()
+            self.append(connect_item)
+
+        if row['paired'] and not row['connected']:
+            item: Gtk.ImageMenuItem = create_menuitem(_('_Remove…'), 'gtk-remove')
+            item.connect('activate', lambda x: self.Blueman.remove(self.SelectedDevice))
+            item.props.tooltip_text: str = _('Remove this device from the known devices list')
+            self.append(item)
+            item.show()
 
         logging.debug(row["alias"])
 

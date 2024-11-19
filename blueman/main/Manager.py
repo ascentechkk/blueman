@@ -9,7 +9,6 @@ from blueman.bluez.Manager import Manager
 from blueman.Functions import *
 from blueman.gui.manager.ManagerDeviceList import ManagerDeviceList
 from blueman.gui.manager.ManagerToolbar import ManagerToolbar
-from blueman.gui.manager.ManagerMenu import ManagerMenu
 from blueman.gui.manager.ManagerStats import ManagerStats
 from blueman.gui.manager.ManagerProgressbar import ManagerProgressbar
 from blueman.main.Builder import Builder
@@ -134,7 +133,6 @@ class Blueman(Gtk.Application):
                 sw.add(self.List)
 
                 self.Toolbar = ManagerToolbar(self)
-                self.Menu = ManagerMenu(self)
 
                 if self.List.is_valid_adapter():
                     self.List.populate_devices()

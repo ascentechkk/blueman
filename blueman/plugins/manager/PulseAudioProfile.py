@@ -132,7 +132,7 @@ class PulseAudioProfile(ManagerPlugin, MenuItemsProvider):
                 return []
 
             item = create_menuitem(_("Audio Profile"), "audio-card-symbolic")
-            item.props.tooltip_text = _("Select audio profile for PulseAudio")
+            item.props.tooltip_text = _("Select audio profile for this device")
 
             if not device['Address'] in self.devices:
                 self.query_pa(device, item)

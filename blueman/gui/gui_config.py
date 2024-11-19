@@ -6,7 +6,7 @@ Filters GUI Elements
 from blueman.bluez.Device import Device
 
 
-allowd_classes = [
+allowed_classes = [
     0x000404, # Wearable Headset Device
     0x000408, # Hands-free Device
     0x000410, # Microphone
@@ -44,7 +44,7 @@ def get_allowed_device(path: str) -> bool:
     klass = device["Class"] & 0xfff
     appearance = device["Appearance"]
 
-    if klass in allowd_classes:
+    if klass in allowed_classes:
         return True
 
     if appearance in allowed_appearances:

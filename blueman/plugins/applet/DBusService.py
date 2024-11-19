@@ -53,7 +53,6 @@ class DBusService(AppletPlugin):
         self._add_dbus_method("SetPluginConfig", ("s", "b"), "", self.parent.Plugins.set_config)
         self._add_dbus_method("ConnectService", ("o", "s"), "", self.connect_service, is_async=True)
         self._add_dbus_method("DisconnectService", ("o", "s", "d"), "", self._disconnect_service, is_async=True)
-        self._add_dbus_method("OpenPluginDialog", (), "", self._open_plugin_dialog)
 
         self._add_dbus_signal("PluginsChanged", "")
         self.parent.Plugins.connect("plugin-loaded", lambda *args: self._plugins_changed())
@@ -65,13 +64,6 @@ class DBusService(AppletPlugin):
     def connect_service(self, object_path: ObjectPath, uuid: str, ok: Callable[[], None],
                         err: Callable[[Union[BluezDBusException, "NMConnectionError",
                                              RFCOMMError, GLib.Error, str]], None]) -> None:
-        try:
-            self.parent.Plugins.RecentConns
-        except KeyError:
-            logging.warning("RecentConns plugin is unavailable")
-        else:
-            self.parent.Plugins.RecentConns.notify(object_path, uuid)
-
         if uuid == '00000000-0000-0000-0000-000000000000':
             device = Device(obj_path=object_path)
             device.connect(reply_handler=ok, error_handler=err)
@@ -120,6 +112,3 @@ class DBusService(AppletPlugin):
                 logging.info("Disconnecting rfcomm device")
             elif isinstance(service, NetworkService):
                 service.disconnect(reply_handler=ok, error_handler=err)
-
-    def _open_plugin_dialog(self) -> None:
-        self.parent.Plugins.StandardItems.on_plugins()

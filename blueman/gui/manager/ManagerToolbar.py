@@ -28,18 +28,7 @@ class ManagerToolbar:
         self.b_search = blueman.builder.get_widget("b_search", Gtk.ToolButton)
         self.b_search.connect("clicked", lambda button: blueman.inquiry())
 
-        self.b_bond = blueman.builder.get_widget("b_bond", Gtk.ToolButton)
-        self.b_bond.connect("clicked", self.on_action, self.blueman.List.on_connect_clicked)
-
-        self.b_remove = blueman.builder.get_widget("b_remove", Gtk.ToolButton)
-        self.b_remove.connect("clicked", self.on_action, self.blueman.remove)
-
         self.on_adapter_changed(blueman.List, blueman.List.get_adapter_path())
-
-    def on_action(self, _button: Gtk.ToolButton, func: Callable[[Device], None]) -> None:
-        device = self.blueman.List.get_selected_device()
-        if device is not None:
-            func(device)
 
     def on_adapter_property_changed(self, _lst: ManagerDeviceList, adapter: Adapter,
                                     key_value: Tuple[str, object]) -> None:
@@ -61,18 +50,7 @@ class ManagerToolbar:
 
     def _update_buttons(self, adapter: Optional[Adapter]) -> None:
         powered = adapter is not None and adapter["Powered"]
-        self.b_search.props.sensitive = powered and not (adapter and adapter["Discovering"])
-
-        tree_iter = self.blueman.List.selected()
-        if tree_iter is None:
-            self.b_bond.props.sensitive = False
-            self.b_remove.props.sensitive = False
-        else:
-            row = self.blueman.List.get(tree_iter, "connected", "trusted", "objpush")
-            self.b_bond.props.sensitive = powered and not row["connected"]
-            self.b_remove.props.sensitive = True
-
-           
+        self.b_search.props.sensitive = powered and not (adapter and adapter["Discovering"])           
 
     def on_device_propery_changed(self, dev_list: ManagerDeviceList, device: Device, tree_iter: Gtk.TreeIter,
                                   key_value: Tuple[str, object]) -> None:
