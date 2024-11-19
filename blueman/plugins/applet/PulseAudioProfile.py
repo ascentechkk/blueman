@@ -1,8 +1,9 @@
 import logging
 from gettext import gettext as _
 from html import escape
-from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Callable
+from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Callable, cast
 
+from blueman.bluez.errors import BluezDBusException
 from blueman.main.PulseAudioUtils import EventType, PulseAudioUtils
 from blueman.plugins.AppletPlugin import AppletPlugin
 from blueman.Sdp import (AUDIO_SINK_SVCLASS_ID, AUDIO_SOURCE_SVCLASS_ID,
@@ -65,21 +66,67 @@ class AudioProfiles(AppletPlugin):
                 self.on_activate_profile(device, profile)
             return _wrapper
 
-        def _generate_profiles_menu(info: "CardInfo") -> List["SubmenuItemDict"]:
+        def generate_device_menu(info: "CardInfo") -> List["SubmenuItemDict"]:
             items: List["SubmenuItemDict"] = []
             if not info:
                 return items
+
+            uuid: str = "00000000-0000-0000-0000-000000000000" 
+
+            def connect_reply() -> None:
+                logging.debug("Connected successfully")
+
+            def connect_err(reason: BluezDBusException) -> None:
+                logging.debug(f"Failed to connect: {reason}")
+
+            def disconnect_reply() -> None:
+                logging.debug("Disconnected successfully")
+
+            def disconnect_err(reason: BluezDBusException) -> None:
+                logging.debug(f"Failed to disconnect: {reason}")
+
+
+            items.append({
+                "text": _("Connect") if not device["Connected"] else _("Disconnect"),
+                "markup": True,
+                "icon_name": "bluetooth-symbolic" if not device["Connected"] else "bluetooth-disabled-symbolic",
+                "sensitive": True,
+                "callback": cast(
+                    Callable[[], None],
+                    lambda dev=device: self.parent.Plugins.DBusService.connect_service(
+                        dev.get_object_path(),
+                        uuid,
+                        connect_reply,
+                        connect_err
+                    )
+                ) if not device["Connected"]
+                else cast(
+                    Callable[[], None],
+                    lambda dev=device: self.parent.Plugins.DBusService._disconnect_service(
+                        dev.get_object_path(),
+                        uuid,
+                        0,
+                        disconnect_reply,
+                        disconnect_err
+                    )
+                ),
+                "tooltip": "",
+            })
+
             for profile in info["profiles"]:
                 profile_name = escape(profile["description"])
-                profile_icon = "bluetooth-symbolic"
+                profile_icon = "audio-card-symbolic"
+
                 if profile["name"] == info["active_profile"]:
-                    profile_name = f"<b>{profile_name}</b>"
+                    profile_name = f"{profile_name}"
                     profile_icon = "dialog-ok"
+
                 try:
                     if profile["name"] == self.last_selected_audio_profile[path] and profile["name"] != info["active_profile"]:
                         self.on_activate_profile(device, profile)
-                except Exception as e:
-                    logging.debug(f'An unexpected error occured: {e}')
+                except Exception as err:
+                    logging.debug(f"An unexpected error occured: {err}")
+
                 items.append({
                     "text": profile_name,
                     "markup": True,
@@ -88,15 +135,19 @@ class AudioProfiles(AppletPlugin):
                     "callback": _activate_profile_wrapper(device, profile),
                     "tooltip": "",
                 })
+
             return items
 
         path = device.get_object_path()
-        info = self._devices[device['Address']]
+        info = self._devices[device["Address"]]
         idx = max((item.priority[1] for item in self._device_menus.values()), default=-1) + 1
-        menu = self._menu.add(self, (42, idx), _("Audio Profiles for %s") % device.display_name,
-                              icon_name="audio-card-symbolic",
-                              submenu_function=lambda: _generate_profiles_menu(info))
-        self._device_menus[device['Address']] = menu
+        menu = self._menu.add(
+            self, (2, idx),
+            device["Alias"],
+            icon_name=device["Icon"],
+            submenu_function=lambda: generate_device_menu(info)
+        )
+        self._device_menus[device["Address"]] = menu
 
     def query_pa(self, device: "Device") -> None:
         def list_cb(cards: Mapping[str, "CardInfo"]) -> None:

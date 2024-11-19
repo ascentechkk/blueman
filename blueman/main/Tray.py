@@ -67,11 +67,11 @@ class BluemanTray(Gio.Application):
 
     def activate_status_icon(self) -> None:
         try:
-            state: str = sp.check_output(['systemctl', 'is-active', 'bluetooth.service'], text=True).strip()
-        except sp.CalledProcessError as process_error:
-            logging.debug(f'An error occured while checking Bluetooth service status: {process_error}')
+            state = sp.check_output(['/usr/bin/systemctl', 'is-active', 'bluetooth.service'], text=True).strip()
+        except sp.CalledProcessError as err:
+            logging.debug(f'An error occured while checking Bluetooth service status: {err}')
             return
-        
+
         if state != 'active':
             return
 

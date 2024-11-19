@@ -4,6 +4,7 @@ import html
 import logging
 import cairo
 import os
+import math
 
 from blueman.bluemantyping import ObjectPath, BtAddress
 from blueman.bluez.Adapter import Adapter
@@ -113,13 +114,6 @@ class ManagerDeviceList(DeviceList):
 
         self.set_search_equal_func(self.search_func)
         self.filter.set_visible_func(self.filter_func)
-
-    # Callback method for the connect button on the toolbar
-    def on_connect_clicked(self, device: Device) -> None:
-        if self.menu == None:
-            self.menu = ManagerDeviceMenu(self.Blueman)
-        if self.menu.show_generic_connect_calc(device['UUIDs']) and Adapter(obj_path=device["Adapter"])["Powered"]:
-            self.menu.connect_service(device)
 
     def _on_settings_changed(self, settings: Gio.Settings, key: str) -> None:
         if key in ('sort-by', 'sort-order'):
@@ -249,6 +243,9 @@ class ManagerDeviceList(DeviceList):
         if self.menu is None:
             self.menu = ManagerDeviceMenu(self.Blueman)
 
+        if event.type == Gdk.EventType.BUTTON_PRESS and cast(Gdk.EventButton, event).button == 3:
+            self.menu.popup_at_pointer(event)
+
         return False
 
     def _on_key_pressed(self, _widget: Gtk.Widget, event: Gdk.EventKey) -> bool:
@@ -291,8 +288,19 @@ class ManagerDeviceList(DeviceList):
         ctx = cairo.Context(target)
 
         if is_connected or is_paired:
-            icon = "blueman-connected-emblem" if is_connected else "blueman-paired-emblem"
+            icon: str = "connected" if is_connected else "disconnected"
+
             paired_surface = self._load_surface(icon, 16)
+            ctx.set_source_rgb(0.0, 1.0, 0.0) if is_connected else ctx.set_source_rgb(0.5, 0.5, 0.5)
+            icon_width: int = paired_surface.get_width()
+            icon_height: int = paired_surface.get_height()
+            center_x: float = icon_width / 2 + 1
+            center_y: float = icon_height / 2 + 1            
+            radius: float = max(icon_width, icon_height) / 2
+            ctx.arc(center_x, center_y, radius, 0, 2 * math.pi)
+            ctx.fill()
+
+            paired_surface: cairo.ImageSurface = self._load_surface(icon, 16)
             ctx.set_source_surface(paired_surface, 1 / scale, 1 / scale)
             ctx.paint_with_alpha(0.8)
 
@@ -315,8 +323,8 @@ class ManagerDeviceList(DeviceList):
 
     @staticmethod
     def make_caption(name: str, klass: str, address: BtAddress) -> str:
-        return "<span size='x-large'>%(0)s</span>\n<span size='small'>%(1)s</span>\n<i>%(2)s</i>" \
-               % {"0": html.escape(name), "1": klass, "2": address}
+        return "<span size='x-large'>%(0)s</span>\n<span size='small'>%(1)s</span>" \
+               % {"0": html.escape(name), "1": klass}
 
     @staticmethod
     def make_display_name(alias: str, klass: int, address: BtAddress) -> str:
@@ -454,7 +462,17 @@ class ManagerDeviceList(DeviceList):
                 self.set(tree_iter, paired=False)
 
         elif key == "Alias":
-            c = self.make_caption(value, self.get_device_class(device), device['Address'])
+            klass = get_minor_class(device['Class'])
+            # Bluetooth >= 4 devices use Appearance property
+            appearance = device["Appearance"]
+            if klass != _("Uncategorized") and klass != _("Unknown"):
+                description = klass
+            elif klass == _("Unknown") and appearance:
+                description = gatt_appearance_to_name(appearance)
+            else:
+                description = get_major_class(device['Class'])
+                
+            c = self.make_caption(value, description, device['Address'])
             name = self.make_display_name(device.display_name, device["Class"], device["Address"])
             self.set(tree_iter, caption=c, alias=name)
 
@@ -474,7 +492,7 @@ class ManagerDeviceList(DeviceList):
             if self.get_device_class(device) == _("Unknown") and device["Icon"] == "input-keyboard":
                 path = device.get_object_path()
                 self.Blueman.Applet.AddBlockedDevice('(s)', path)
-                WarningMessageDialog(device["Alias"] + " can't be used.").show_all()
+                WarningMessageDialog(_("This device can't be used.")).show_all()
                 self.device_remove_event(path)
                 if self.menu is None:
                     self.menu = ManagerDeviceMenu(self.Blueman)
@@ -560,13 +578,9 @@ class ManagerDeviceList(DeviceList):
             row = self.get(tree_iter, "connected", "trusted", "paired", "blocked")
             str_list = []
             if row["connected"]:
-                str_list.append(_("Connected"))
-            if row["trusted"]:
-                str_list.append(_("Trusted"))
-            if row["paired"]:
+                str_list.append(_("_Connected"))
+            elif row["paired"]:
                 str_list.append(_("Paired"))
-            if row["blocked"]:
-                str_list.append(_("Blocked"))
 
             text = ", ".join(str_list)
             if text:
@@ -602,15 +616,15 @@ class ManagerDeviceList(DeviceList):
 
             if rssi != 0:
                 if rssi < 30:
-                    rssi_state = _("Poor")
+                    rssi_state = _("Very Weak")
                 elif rssi < 40:
-                    rssi_state = _("Sub-optimal")
+                    rssi_state = _("Weak")
                 elif rssi < 60:
-                    rssi_state = _("Optimal")
+                    rssi_state = _("Fair")
                 elif rssi < 70:
-                    rssi_state = _("Much")
+                    rssi_state = _("Strong")
                 else:
-                    rssi_state = _("Too much")
+                    rssi_state = _("Very Strong")
 
                 if path[1] == self.columns["rssi_pb"]:
                     lines.append(_("<b>Received Signal Strength: %(rssi)u%%</b> <i>(%(rssi_state)s)</i>") %
@@ -621,11 +635,11 @@ class ManagerDeviceList(DeviceList):
 
             if tpl != 0:
                 if tpl < 30:
-                    tpl_state = _("Low")
+                    tpl_state = _("Very Low")
                 elif tpl < 40:
-                    tpl_state = _("Sub-optimal")
+                    tpl_state = _("Low")
                 elif tpl < 60:
-                    tpl_state = _("Optimal")
+                    tpl_state = _("Fair")
                 elif tpl < 70:
                     tpl_state = _("High")
                 else:

@@ -143,6 +143,10 @@ msgstr "付近のデバイスを検索"
 msgid "Search"
 msgstr "検索"
 
+#: data/ui/manager-main.ui:295
+msgid "Add"
+msgstr "追加"
+
 #: data/ui/manager-main.ui:318 blueman/gui/manager/ManagerDeviceMenu.py:367
 msgid "Create pairing with the device"
 msgstr "デバイスをペアリングする"
@@ -624,6 +628,33 @@ msgstr "コンボ"
 msgid "Unnamed device"
 msgstr "デバイス名の変更"
 
+msgid "Very Weak"
+msgstr "非常に弱い"
+
+msgid "Weak"
+msgstr "弱い"
+
+msgid "Fair"
+msgstr "普通"
+
+msgid "Strong"
+msgstr "強い"
+
+msgid "Very Strong"
+msgstr "非常に強い"
+
+msgid "Very Low"
+msgstr "非常に低い"
+
+msgid "Low"
+msgstr "低い"
+
+msgid "High"
+msgstr "高い"
+
+msgid "Very High"
+msgstr "非常に高い"
+
 #. translators: device class
 #: blueman/gui/manager/ManagerDeviceList.py:340
 #: blueman/gui/manager/ManagerDeviceList.py:369 blueman/DeviceClass.py:24
@@ -632,8 +663,43 @@ msgstr "デバイス名の変更"
 msgid "Uncategorized"
 msgstr "未分類"
 
+msgid "This device can't be used."
+msgstr "このデバイスは使用できません。"
+
+msgid "Connect"
+msgstr "接続"
+
+msgid "Disconnect"
+msgstr "切断"
+
+msgid "_Connect"
+msgstr "接続(_C)"
+
+msgid "_Disconnect"
+msgstr "切断(_D)"
+
+msgid "Connect to this device"
+msgstr "このデバイスに接続する"
+
+msgid "Disconnect from this device"
+msgstr "このデバイスを切断する"
+
+msgid "Turn on Bluetooth"
+msgstr "Bluetoothをオンにする(_O)"
+
+msgid "Turn off Bluetooth"
+msgstr "Bluetoothをオフにする(_O)"
+
+msgid "Bluetooth is off. Would you like to turn it on?"
+msgstr "Bluetoothがオフになっています。オンにしますか。"
+
+msgid "Yes"
+msgstr "はい"
+
+msgid "No"
+msgstr "いいえ"
+
 #. https://github.com/python/mypy/issues/2608
-#: blueman/gui/manager/ManagerDeviceList.py:560
 #: blueman/plugins/applet/AutoConnect.py:50
 #: blueman/plugins/applet/ConnectionNotifier.py:31
 #: blueman/plugins/applet/RecentConns.py:155
@@ -641,13 +707,17 @@ msgstr "未分類"
 msgid "Connected"
 msgstr "接続しました"
 
+#: blueman/gui/manager/ManagerDeviceList.py:560
+msgid "_Connected"
+msgstr "接続済み"
+
 #: blueman/gui/manager/ManagerDeviceList.py:562
 msgid "Trusted"
 msgstr "信頼"
 
 #: blueman/gui/manager/ManagerDeviceList.py:564
 msgid "Paired"
-msgstr "ペア"
+msgstr "ペアリング済み"
 
 #: blueman/gui/manager/ManagerDeviceList.py:566
 msgid "Blocked"
@@ -656,10 +726,6 @@ msgstr "ブロック"
 #: blueman/gui/manager/ManagerDeviceList.py:588
 msgid "<b>Connected</b>"
 msgstr "<b>接続済み</b>"
-
-#: blueman/gui/manager/ManagerDeviceList.py:602
-msgid "Poor"
-msgstr "弱い"
 
 #: blueman/gui/manager/ManagerDeviceList.py:604
 #: blueman/gui/manager/ManagerDeviceList.py:623
@@ -688,18 +754,6 @@ msgstr "<b>受信信号強度: %(rssi)u%%</b> <i>(%(rssi_state)s)</i>"
 #, python-format
 msgid "Received Signal Strength: %(rssi)u%% <i>(%(rssi_state)s)</i>"
 msgstr "受信信号強度: %(rssi)u%% <i>(%(rssi_state)s)</i>"
-
-#: blueman/gui/manager/ManagerDeviceList.py:621
-msgid "Low"
-msgstr "低い"
-
-#: blueman/gui/manager/ManagerDeviceList.py:627
-msgid "High"
-msgstr "高い"
-
-#: blueman/gui/manager/ManagerDeviceList.py:629
-msgid "Very High"
-msgstr "非常に高い"
 
 #: blueman/gui/manager/ManagerDeviceList.py:632
 #, python-format
@@ -3185,8 +3239,8 @@ msgid "Audio Profile"
 msgstr "オーディオプロファイル"
 
 #: blueman/plugins/manager/PulseAudioProfile.py:133
-msgid "Select audio profile for PulseAudio"
-msgstr "PulseAudio のオーディオプロファイルを選択して下さい"
+msgid "Select audio profile for this device"
+msgstr "このデバイスのオーディオプロファイルを選択"
 
 #: blueman/plugins/BasePlugin.py:34 blueman/plugins/BasePlugin.py:35
 msgid "Unspecified"
@@ -3849,12 +3903,6 @@ msgstr "RfKill ステートの設定には権限が必要です"
 #~ msgid "Shall bluetooth get enabled automatically?"
 #~ msgstr "Bluetoothは自動的に有効にしますか？"
 
-#~ msgid "Yes"
-#~ msgstr "はい"
-
-#~ msgid "No"
-#~ msgstr "いいえ"
-
 #, python-format
 #~ msgid "<b>Link Quality: %(lq)u%%</b>"
 #~ msgstr "<b>リンク品質: %(lq)u%%</b>"
@@ -3926,9 +3974,6 @@ msgstr "RfKill ステートの設定には権限が必要です"
 
 #~ msgid "<b>Connect to:</b>"
 #~ msgstr "<b>接続: </b>"
-
-#~ msgid "Connect"
-#~ msgstr "接続"
 
 #~ msgid "<b>Please wait...</b>"
 #~ msgstr "<b>お待ちください...</b>"

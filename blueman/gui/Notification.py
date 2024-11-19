@@ -11,7 +11,7 @@ from gi.repository import Gio
 from blueman.gui.GtkAnimation import AnimBase
 import logging
 
-OPACITY_START = 0.7
+OPACITY_START = 1.0
 
 
 class Fade(AnimBase):
