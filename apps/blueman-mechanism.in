@@ -2,6 +2,7 @@
 import sys
 import os
 import logging
+from typing import Optional
 
 from blueman.main.MechanismApplication import MechanismApplication
 
@@ -12,7 +13,7 @@ if 'BLUEMAN_SOURCE' in os.environ:
     os.environ["GSETTINGS_SCHEMA_DIR"] = os.path.join(_dirname, "data")
 
 from blueman.Functions import set_proc_title, create_logger, create_parser
-
+from blueman.main.DBusProxies import AppletService
 
 class StreamToLogger:
     """
@@ -48,6 +49,10 @@ elif args.LEVEL.upper() == "CRITICAL":
     log_level = logging.CRITICAL
 else:
     log_level = logging.WARNING
+
+_log_level: Optional[str] = os.getenv('LOG_LEVEL')
+if _log_level is not None:
+    log_level = int(_log_level)
 
 logger = create_logger(log_level, "blueman-mechanism", syslog=True)
 

@@ -3,6 +3,7 @@ import sys
 import os
 import logging
 import gettext
+from typing import Optional
 
 # support running uninstalled
 _dirname = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -33,7 +34,11 @@ if __name__ == '__main__':
     else:
         log_level = logging.WARNING
 
-    create_logger(log_level, "blueman-applet", syslog=args.syslog)
+    _log_level: Optional[str] = os.getenv('LOG_LEVEL')
+    if _log_level is not None:
+        log_level = int(_log_level)
+
+    create_logger(log_level, "blueman-applet", syslog=True)
 
     set_proc_title()
     app = BluemanApplet()

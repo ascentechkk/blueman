@@ -12,6 +12,7 @@ if 'BLUEMAN_SOURCE' in os.environ:
 gettext.textdomain("@GETTEXT_PACKAGE@")
 
 from blueman.Functions import set_proc_title, create_parser, create_logger
+from blueman.main.DBusProxies import AppletService
 from blueman.main.Tray import BluemanTray
 
 
@@ -32,7 +33,11 @@ if __name__ == '__main__':
     else:
         log_level = logging.WARNING
 
-    create_logger(log_level, "blueman-tray", syslog=args.syslog)
+    _log_level: str = AppletService().GetLogLevel()
+    if _log_level:
+        log_level = int(_log_level)
+
+    create_logger(log_level, "blueman-tray", syslog=True)
 
     set_proc_title()
     app = BluemanTray()
