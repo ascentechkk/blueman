@@ -3,9 +3,10 @@ gi.require_version("Gtk", "3.0")
 
 from gi.repository import Gio, GLib, Gtk
 import logging
+import os
 import signal
 from gettext import gettext as _
-from typing import Any, cast
+from typing import Any, cast, Optional
 from blueman.bluemantyping import ObjectPath
 
 from blueman.Functions import *
@@ -56,6 +57,8 @@ class BluemanApplet(Gtk.Application):
         self.blocked_devices = []
         self.DbusSvc.add_method("IsDeviceBlocked", ("s"), "b", self.is_device_blocked)
         self.DbusSvc.add_method("AddBlockedDevice", ("s"), "", self.add_blocked_device)
+
+        self.DbusSvc.add_method("GetLogLevel", (), "s", self.get_log_level)
 
         self.Plugins = Plugins(self)
         self.Plugins.load_plugin()
@@ -133,6 +136,17 @@ class BluemanApplet(Gtk.Application):
     def add_blocked_device(self, path: str) -> None:
         if path not in self.blocked_devices:
             self.blocked_devices.append(path)
+
+    def get_log_level(self) -> str:
+        """
+        Return the log level to be used for outputting logs to syslog.
+        """
+        log_level: Optional[str] = os.getenv('LOG_LEVEL')
+        if log_level is not None:
+            return log_level
+        else:
+            return ''
+
 
 class Plugins(PersistentPluginManager[AppletPlugin]):
     def __init__(self, applet: BluemanApplet):
