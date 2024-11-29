@@ -138,9 +138,6 @@ class ManagerDeviceMenu(Gtk.Menu):
             logging.info("success")
             prog.message(_("Success!"))
 
-            if not device["Trusted"]:
-                device["Trusted"] = True
-
             self.unset_op(device)
 
         def fail(_obj: Optional[AppletService], result: GLib.Error, _user_data: None) -> None:
@@ -151,14 +148,19 @@ class ManagerDeviceMenu(Gtk.Menu):
             self._handle_error_message(result)
 
         def success_pair(*args) -> None:
-            logging.info("Paring successful")
+            logging.info("Paired successfully")
+
+            if not device["Trusted"]:
+                device["Trusted"] = True
+                logging.info("Trusted successfully")
+
             self._appl.ConnectService('(os)', device.get_object_path(), uuid,
                                     result_handler=success, error_handler=fail,
                                     timeout=GLib.MAXINT)
         
         def fail_pair(exception: GLib.Error) -> None:
-            logging.warning(f"Paring failed: {exception}")
-            logging.info("Reattempt to connect with connect method")
+            logging.warning(f"Pairing failed: {exception}")
+            logging.info("Reattempting to connect with the connect method")
             self._appl.ConnectService('(os)', device.get_object_path(), uuid,
                                     result_handler=success, error_handler=fail,
                                     timeout=GLib.MAXINT)

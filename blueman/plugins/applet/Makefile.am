@@ -11,6 +11,7 @@ blueman_PYTHON = \
     Menu.py \
     PowerManager.py \
     RecentConns.py \
+    SavePairedStates.py \
     ShowConnected.py \
     StatusIcon.py \
     StandardItems.py \
