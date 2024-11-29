@@ -58,15 +58,7 @@ class StatusIcon(AppletPlugin, GObject.GObject):
         self._add_dbus_method("Activate", (), "", self.parent.Plugins.StandardItems.on_devices)
 
     def query_visibility(self, delay_hiding: bool = False, emit: bool = True) -> None:
-        if self.parent.Manager.get_adapters() or \
-           any(plugin.on_query_force_status_icon_visibility()
-               for plugin in self.parent.Plugins.get_loaded_plugins(StatusIconVisibilityHandler)):
-            self.set_visible(True, emit)
-        elif not self.visibility_timeout:
-            if delay_hiding:
-                self.visibility_timeout = GLib.timeout_add(2500, self.on_visibility_timeout)
-            else:
-                self.set_visible(False, emit)
+        self.set_visible(True, emit)
 
     def on_visibility_timeout(self) -> bool:
         assert self.visibility_timeout is not None
