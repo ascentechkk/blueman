@@ -6,16 +6,14 @@ blueman_PYTHON = \
     AutoConnect.py \
     ConnectionNotifier.py \
     DBusService.py \
-    DisconnectItems.py \
     KillSwitch.py \
     Menu.py \
     PowerManager.py \
-    RecentConns.py \
+    RemoveBlockedDevice.py \
     SavePairedStates.py \
-    ShowConnected.py \
     StatusIcon.py \
-    StandardItems.py \
-    StatusNotifierItem.py
+    StatusNotifierItem.py \
+    SystrayDeviceMenu.py
 
 if HAVE_PULSEAUDIO
 blueman_PYTHON += PulseAudioProfile.py

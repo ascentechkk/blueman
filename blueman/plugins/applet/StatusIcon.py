@@ -1,9 +1,12 @@
 from gettext import gettext as _
 from operator import itemgetter
 from typing import Optional, Tuple, List
+import logging
 
 from gi.repository import GObject, GLib, Gio
 from blueman.Functions import launch
+from blueman.gui.Notification import Notification, _NotificationDialog
+from blueman.main.DBusProxies import ManagerService
 from blueman.main.PluginManager import PluginManager
 from blueman.plugins.AppletPlugin import AppletPlugin
 
@@ -25,7 +28,7 @@ class StatusIconProvider:
 
 class StatusIcon(AppletPlugin, GObject.GObject):
     __icon__ = "bluetooth-symbolic"
-    __depends__ = ["StandardItems", "Menu"]
+    __depends__ = ["Menu"]
 
     visible = None
 
@@ -55,7 +58,17 @@ class StatusIcon(AppletPlugin, GObject.GObject):
         self._add_dbus_signal("IconNameChanged", "s")
         self._add_dbus_method("GetStatusIconImplementations", (), "as", self._get_status_icon_implementations)
         self._add_dbus_method("GetIconName", (), "s", self._get_icon_name)
-        self._add_dbus_method("Activate", (), "", self.parent.Plugins.StandardItems.on_devices)
+        self._add_dbus_method("Activate", (), "", self.launch_blueman_manager)
+
+    def launch_blueman_manager(self) -> None:
+        """
+        Opens the Bluetooth window
+        """
+        m: ManagerService = ManagerService()
+        if m.get_name_owner() and self.get_option("toggle-manager-onclick"):
+            m.quit()
+        else:
+            m.activate()
 
     def query_visibility(self, delay_hiding: bool = False, emit: bool = True) -> None:
         self.set_visible(True, emit)

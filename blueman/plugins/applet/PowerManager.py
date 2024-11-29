@@ -39,7 +39,7 @@ class PowerManager(AppletPlugin, StatusIconProvider):
         OFF_FORCED = 0
 
     def on_load(self) -> None:
-        self.item = self.parent.Plugins.Menu.add(self, 1, text=_("<b>Turn Bluetooth _Off</b>"), markup=True,
+        self.item = self.parent.Plugins.Menu.add(self, 1, text=_("Turn off Bluetooth"), markup=True,
                                                  icon_name="bluetooth-disabled-symbolic",
                                                  tooltip=_("Turn off all adapters"),
                                                  callback=self.on_bluetooth_toggled)
@@ -143,7 +143,7 @@ class PowerManager(AppletPlugin, StatusIconProvider):
         new_state = True
         if foff or off:
 
-            self.item.set_text(_("<b>Turn Bluetooth _On</b>"), markup=True)
+            self.item.set_text(_("Turn on Bluetooth"), markup=True)
             self.item.set_icon_name("bluetooth-symbolic")
             self.item.set_tooltip(_("Turn on all adapters"))
             self.item.set_sensitive(not foff)
@@ -152,7 +152,7 @@ class PowerManager(AppletPlugin, StatusIconProvider):
 
         elif on and not self.current_state:
 
-            self.item.set_text(_("<b>Turn Bluetooth _Off</b>"), markup=True)
+            self.item.set_text(_("Turn off Bluetooth"), markup=True)
             self.item.set_icon_name("bluetooth-disabled-symbolic")
             self.item.set_tooltip(_("Turn off all adapters"))
             self.item.set_sensitive(True)
