@@ -2,7 +2,6 @@ from gettext import gettext as _
 import logging
 from typing import TYPE_CHECKING, Type, Dict, cast, Optional, TypeVar
 
-from blueman.gui.gui_config import hidden_plugins
 from blueman.main.Builder import Builder
 from blueman.main.PluginManager import PluginManager
 from blueman.plugins.AppletPlugin import AppletPlugin
@@ -322,9 +321,6 @@ class PluginDialog(Gtk.ApplicationWindow):
         classes: Dict[str, Type[AppletPlugin]] = self.applet.Plugins.get_classes()
         loaded = self.applet.Plugins.get_loaded()
         for name, cls in classes.items():
-            if name in hidden_plugins:
-                continue
-                
             if cls.is_configurable():
                 desc = f"<span weight=\"bold\">{name}</span>"
             else:

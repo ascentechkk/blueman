@@ -124,7 +124,7 @@ class StatusIcon(AppletPlugin, GObject.GObject):
 
     def _get_icon_name(self) -> str:
         # default icon name
-        name = "blueman-tray"
+        name = "blueman"
         for plugin in self.parent.Plugins.get_loaded_plugins(StatusIconProvider):
             icon = plugin.on_status_icon_query_icon()
             if icon is not None:

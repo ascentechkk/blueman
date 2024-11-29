@@ -249,16 +249,6 @@ class ManagerDeviceList(DeviceList):
         if self.menu is None:
             self.menu = ManagerDeviceMenu(self.Blueman)
 
-        if event.type == Gdk.EventType._2BUTTON_PRESS and cast(Gdk.EventButton, event).button == 1:
-            if self.menu.show_generic_connect_calc(row["device"]['UUIDs']):
-                if row["connected"]:
-                    self.menu.disconnect_service(row["device"])
-                elif Adapter(obj_path=row["device"]["Adapter"])["Powered"]:
-                    self.menu.connect_service(row["device"])
-
-        if event.type == Gdk.EventType.BUTTON_PRESS and cast(Gdk.EventButton, event).button == 3:
-            self.menu.popup_at_pointer(event)
-
         return False
 
     def _on_key_pressed(self, _widget: Gtk.Widget, event: Gdk.EventKey) -> bool:
@@ -304,24 +294,6 @@ class ManagerDeviceList(DeviceList):
             icon = "blueman-connected-emblem" if is_connected else "blueman-paired-emblem"
             paired_surface = self._load_surface(icon, 16)
             ctx.set_source_surface(paired_surface, 1 / scale, 1 / scale)
-            ctx.paint_with_alpha(0.8)
-
-        if is_trusted:
-            trusted_surface = self._load_surface("blueman-trusted-emblem", 16)
-            assert isinstance(target, cairo.ImageSurface)
-            height = target.get_height()
-            mini_height = trusted_surface.get_height()
-            y = height / scale - mini_height / scale - 1 / scale
-
-            ctx.set_source_surface(trusted_surface, 1 / scale, y)
-            ctx.paint_with_alpha(0.8)
-
-        if is_blocked:
-            blocked_surface = self._load_surface("blueman-blocked-emblem", 16)
-            assert isinstance(target, cairo.ImageSurface)
-            width = target.get_width()
-            mini_width = blocked_surface.get_width()
-            ctx.set_source_surface(blocked_surface, (width - mini_width - 1) / scale, 1 / scale)
             ctx.paint_with_alpha(0.8)
 
         return target
