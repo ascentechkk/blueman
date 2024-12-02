@@ -318,7 +318,7 @@ class ManagerDeviceMenu(Gtk.Menu):
             connect_item.show()
             self.append(connect_item)
 
-        if row['paired'] and not row['connected']:
+        if not row['connected']:
             item: Gtk.ImageMenuItem = create_menuitem(_('_Remove…'), 'gtk-remove')
             item.connect('activate', lambda x: self.Blueman.remove(self.SelectedDevice))
             item.props.tooltip_text: str = _('Remove this device from the known devices list')
