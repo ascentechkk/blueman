@@ -8,7 +8,7 @@
     <child name="transfer" schema="org.blueman.transfer"/>
     <child name="serialmanager" schema="org.blueman.plugins.serialmanager"/>
     <child name="discvmanager" schema="org.blueman.plugins.discvmanager"/>
-    <child name="standarditems" schema="org.blueman.plugins.standarditems"/>
+    <child name="statusicon" schema="org.blueman.plugins.statusicon"/>
   </schema>
   <schema id="org.blueman.general" path="/org/blueman/general/">
     <key type="ai" name="window-properties">
@@ -197,7 +197,7 @@
       <description>Amount of time in seconds discoverable mode will last</description>
     </key>
   </schema>
-  <schema id="org.blueman.plugins.standarditems" path="/org/blueman/plugins/standarditems/">
+  <schema id="org.blueman.plugins.statusicon" path="/org/blueman/plugins/statusicon/">
     <key type="b" name="toggle-manager-onclick">
       <default>false</default>
       <summary>Toggle the manager on clicking the system tray icon</summary>
