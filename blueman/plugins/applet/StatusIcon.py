@@ -34,6 +34,20 @@ class StatusIcon(AppletPlugin, GObject.GObject):
 
     visibility_timeout: Optional[int] = None
 
+    __gsettings__ = {
+        "schema": "org.blueman.plugins.statusicon",
+        "path": None
+    }
+
+    __options__ = {
+        "toggle-manager-onclick": {
+            "type": bool,
+            "default": False,
+            "name": _("Toggle the manager on clicking the system tray icon"),
+            "desc": _("Clicking the system tray icon will toggle the manager instead of focusing on it.")
+        }
+    }
+
     _implementations = None
 
     def on_load(self) -> None:
