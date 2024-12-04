@@ -1,11 +1,11 @@
 from gettext import gettext as _
 from operator import itemgetter
-from typing import Optional, Tuple, List
+from typing import Optional, Tuple, List, Callable, Union, Any
 import logging
 
 from gi.repository import GObject, GLib, Gio
 from blueman.Functions import launch
-from blueman.gui.Notification import Notification, _NotificationDialog
+from blueman.gui.Notification import Notification, _NotificationBubble, _NotificationDialog
 from blueman.main.DBusProxies import ManagerService
 from blueman.main.PluginManager import PluginManager
 from blueman.plugins.AppletPlugin import AppletPlugin
@@ -41,6 +41,8 @@ class StatusIcon(AppletPlugin, GObject.GObject):
         self._tooltip_title = _("Bluetooth Enabled")
         self._tooltip_text = ""
 
+        self.notification: Optional[Union[_NotificationBubble, _NotificationDialog]] = None
+
         self.general_config = Gio.Settings(schema_id="org.blueman.general")
         self.general_config.connect("changed::symbolic-status-icons", self.on_symbolic_config_change)
 
@@ -59,6 +61,22 @@ class StatusIcon(AppletPlugin, GObject.GObject):
         self._add_dbus_method("GetStatusIconImplementations", (), "as", self._get_status_icon_implementations)
         self._add_dbus_method("GetIconName", (), "s", self._get_icon_name)
         self._add_dbus_method("Activate", (), "", self.launch_blueman_manager)
+        self._add_dbus_method("ActivateBluetoothAndManager", (), "", self.activate_bluetooth_and_manager, is_async=True)
+
+    def activate_bluetooth_and_manager(self, ok: Callable[[Any], None],
+                                       err: Callable[[Exception], None]) -> None:
+        def on_button_clicked(action: str):
+            if action == 'yes':
+                ok()
+                self.parent.Plugins.PowerManager.request_power_state(True)
+                self.launch_blueman_manager()
+            else:
+                err(Exception('Bluetooth activation cancelled'))
+                logging.debug('Bluetooth activation cancelled')
+        
+        actions: List[Tuple(str, str)] = [('yes', _('Yes')), ('no', _('No'))]
+        self.notification = Notification('', _('Bluetooth is off. Would you like to turn it on?'), 0, actions, on_button_clicked, icon_name='blueman')
+        self.notification.show()
 
     def launch_blueman_manager(self) -> None:
         """
