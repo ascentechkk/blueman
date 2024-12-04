@@ -66,16 +66,18 @@ class BluemanTray(Gio.Application):
         AppletService().ActivateMenuItem('(ai)', indexes)
 
     def activate_status_icon(self) -> None:
+        state: str
         try:
             state = sp.check_output(['/usr/bin/systemctl', 'is-active', 'bluetooth.service'], text=True).strip()
         except sp.CalledProcessError as err:
+            state = 'inactive'
             logging.debug(f'An error occured while checking Bluetooth service status: {err}')
-            return
 
+        applet_service: AppletService = AppletService()
         if state != 'active':
-            return
-
-        AppletService().Activate()
+            applet_service.ActivateBluetoothAndManager()
+        else:
+            applet_service.Activate()
 
     def on_signal(self, _applet: AppletService, _sender_name: str, signal_name: str, args: GLib.Variant) -> None:
         if signal_name == 'IconNameChanged':
