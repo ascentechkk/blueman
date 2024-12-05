@@ -1,4 +1,10 @@
-blueman (BUILDNUM) UNRELEASED; urgency=medium
+blueman (2.4.3-astc2) UNRELEASED; urgency=medium
+
+  * Custom package by Ascentech K.K.
+
+ -- Maintainer <maintainer@example.com>  Thu, 5 Dec 2024 15:00:00 +0900
+
+blueman (2.4.3-astc1) UNRELEASED; urgency=medium
 
   * Custom package by Ascentech K.K.
 
