@@ -137,6 +137,7 @@ class BluemanApplet(Gtk.Application):
         if path not in self.blocked_devices:
             self.blocked_devices.append(path)
 
+    # Test commit
     def get_log_level(self) -> str:
         """
         Return the log level to be used for outputting logs to syslog.
