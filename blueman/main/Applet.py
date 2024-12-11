@@ -60,6 +60,8 @@ class BluemanApplet(Gtk.Application):
 
         self.DbusSvc.add_method("GetLogLevel", (), "s", self.get_log_level)
 
+        self.DbusSvc.add_method("GetSaveScriptPath", (), "s", self.get_save_script_path)
+
         self.Plugins = Plugins(self)
         self.Plugins.load_plugin()
 
@@ -147,6 +149,15 @@ class BluemanApplet(Gtk.Application):
         else:
             return ''
 
+    def get_save_script_path(self) -> str:
+        """
+        Return the path to the script that saves the states of the paired devices.
+        """
+        script_path: Optional[str] = os.getenv("ASTC_SAVE_SCRIPT")
+        if script_path is not None:
+            return script_path
+        else:
+            return ''
 
 class Plugins(PersistentPluginManager[AppletPlugin]):
     def __init__(self, applet: BluemanApplet):

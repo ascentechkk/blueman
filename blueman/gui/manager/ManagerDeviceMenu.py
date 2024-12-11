@@ -1,4 +1,6 @@
 import logging
+import os
+import subprocess as sp
 from enum import Enum, auto
 from gettext import gettext as _
 from operator import attrgetter
@@ -87,6 +89,12 @@ class ManagerDeviceMenu(Gtk.Menu):
         except DBusProxyFailed:
             logging.error("** Failed to connect to applet", exc_info=True)
             self._appl = None
+
+        self.save_script_path: Optional[str]
+        if self._appl is not None:
+            self.save_script_path = self._appl.GetSaveScriptPath()
+        else:
+            self.save_script_path = None
 
         self.generate()
 
@@ -341,12 +349,25 @@ class ManagerDeviceMenu(Gtk.Menu):
             self.append(it.item)
 
         def on_rename(_item: Gtk.MenuItem, device: Device) -> None:
+            def save_device_state(self) -> None:
+                if self.save_script_path:
+                    script_name: str = os.path.basename(self.save_script_path)
+                    try:
+                        sp.check_call(['/usr/bin/python3', self.save_script_path])
+                        logging.debug(f"{script_name} is executed successfully")
+                    except sp.CalledProcessError as err:
+                        logging.debug(f"An error occured while executing the script: {err}")
+                else:
+                    logging.debug("Environment variable is not set")
+
             def on_response(dialog: Gtk.Dialog, response_id: int) -> None:
                 if response_id == Gtk.ResponseType.ACCEPT:
                     assert isinstance(alias_entry, Gtk.Entry)  # https://github.com/python/mypy/issues/2608
                     device.set('Alias', alias_entry.get_text())
+                    save_device_state()
                 elif response_id == 1:
                     device.set('Alias', '')
+                    save_device_state()
                 dialog.destroy()
 
             builder = Builder("rename-device.ui")
