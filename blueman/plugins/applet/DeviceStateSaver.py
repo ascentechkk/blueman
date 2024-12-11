@@ -11,7 +11,7 @@ import subprocess as sp
 from blueman.plugins.AppletPlugin import AppletPlugin
 
 
-class SavePairedStates(AppletPlugin):
+class DeviceStateSaver(AppletPlugin):
     """
     Class for saving the states of paired Bluetooth devices when their paring status changes.
 
@@ -20,21 +20,25 @@ class SavePairedStates(AppletPlugin):
     """
     script_path: Optional[str] = os.getenv("ASTC_SAVE_SCRIPT")
 
-    def save_paired_states(self) -> None:
+    def on_load(self) -> None:
+        """
+        Called when Blueman is launched. (Called from BasePlugin class)
+        """
+        self._add_dbus_method("SaveDeviceState", (), "", self.save_device_state)
+
+    def save_device_state(self) -> None:
         """
         Execute the save script.
         """
         if self.script_path is None:
-            logging.debug("Environment variable is not set")
+            logging.debug("The states of paired devices couldn't be saved.")
             return
-
-        script_name: str = os.path.basename(self.script_path)
 
         try:
             result: sp.CompletedProcess = sp.run(['/usr/bin/python3', self.script_path], check=True)
-            logging.debug(f"{script_name} is executed successfully")
+            logging.debug(f"The states of paired devices are saved.")
         except sp.CalledProcessError as process_error:
-            logging.debug(f"An error occured while executing the script: {process_error}")
+            logging.debug(f"An error occured while saving the states of paired devices: {process_error}")
     
     def on_device_property_changed(self, path: str, key: str, value: Any) -> None:
         """
@@ -46,7 +50,7 @@ class SavePairedStates(AppletPlugin):
             value (Any): Value of the Bluez property.
         """
         if key == "Paired":
-            self.save_paired_states()
+            self.save_device_state()
     
     def on_device_removed(self, path: str) -> None:
         """
@@ -55,5 +59,5 @@ class SavePairedStates(AppletPlugin):
         Args:
             path (str): MAC address of the connected device.
         """
-        self.save_paired_states()
+        self.save_device_state()
             
