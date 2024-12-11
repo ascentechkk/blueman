@@ -54,9 +54,9 @@ class BluemanApplet(Gtk.Application):
         self.DbusSvc.register()
 
         # Send and receive the device path of the unknown devices with blueman-manager process
-        self.blocked_devices = []
-        self.DbusSvc.add_method("IsDeviceBlocked", ("s"), "b", self.is_device_blocked)
-        self.DbusSvc.add_method("AddBlockedDevice", ("s"), "", self.add_blocked_device)
+        self.warned_devices = []
+        self.DbusSvc.add_method("IsDeviceWarned", ("s"), "b", self.is_device_warned)
+        self.DbusSvc.add_method("AddWarnedDevice", ("s"), "", self.add_warned_device)
 
         self.DbusSvc.add_method("GetLogLevel", (), "s", self.get_log_level)
 
@@ -132,12 +132,12 @@ class BluemanApplet(Gtk.Application):
         for plugin in self.Plugins.get_loaded_plugins(AppletPlugin):
             plugin.on_device_removed(path)
 
-    def is_device_blocked(self, path: str) -> bool:
-        return path in self.blocked_devices
+    def is_device_warned(self, path: str) -> bool:
+        return path in self.warned_devices
 
-    def add_blocked_device(self, path: str) -> None:
-        if path not in self.blocked_devices:
-            self.blocked_devices.append(path)
+    def add_warned_device(self, path: str) -> None:
+        if path not in self.warned_devices:
+            self.warned_devices.append(path)
 
     def get_log_level(self) -> str:
         """

@@ -19,7 +19,7 @@ from blueman.Constants import PIXMAP_PATH
 from blueman.Functions import launch
 from blueman.Sdp import ServiceUUID, OBEX_OBJPUSH_SVCLASS_ID
 from blueman.gui.GtkAnimation import TreeRowFade, CellFade, AnimBase
-from blueman.gui.MessageDialog import WarningMessageDialog
+from blueman.gui.Notification import Notification
 from _blueman import ConnInfoReadError, conn_info
 
 import gi
@@ -489,15 +489,11 @@ class ManagerDeviceList(DeviceList):
                 self._disable_power_levels(tree_iter)
 
         elif key == "ServicesResolved":
-            if self.get_device_class(device) == _("Unknown") and device["Icon"] == "input-keyboard":
+            if self.get_device_class(device) == _("Unknown"):
                 path = device.get_object_path()
-                self.Blueman.Applet.AddBlockedDevice('(s)', path)
-                WarningMessageDialog(_("This device can't be used.")).show_all()
-                self.device_remove_event(path)
-                if self.menu is None:
-                    self.menu = ManagerDeviceMenu(self.Blueman)
-                if self.menu.show_generic_connect_calc(device["UUIDs"]) and device["Connected"]:
-                    self.menu.disconnect_service(device)
+                if not self.Blueman.Applet.IsDeviceWarned('(s)', path):
+                    Notification(device['Alias'], _('This device may not work properly'), icon_name=device['Icon']).show()
+                self.Blueman.Applet.AddWarnedDevice('(s)', path)
                     
         elif key == "Name":
             self.set(tree_iter, no_name=False)

@@ -226,9 +226,6 @@ class DeviceList(GenericList):
         if not self.Adapter or not device['Adapter'] == self.Adapter.get_object_path():
             return
 
-        if self.Blueman.Applet.IsDeviceBlocked('(s)', object_path):
-            return
-
         logging.info("adding new device")
 
         colls = {

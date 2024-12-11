@@ -9,7 +9,6 @@ blueman_PYTHON = \
     KillSwitch.py \
     Menu.py \
     PowerManager.py \
-    RemoveBlockedDevice.py \
     SavePairedStates.py \
     StatusIcon.py \
     StatusNotifierItem.py \
