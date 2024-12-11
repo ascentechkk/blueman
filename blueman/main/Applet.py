@@ -52,12 +52,6 @@ class BluemanApplet(Gtk.Application):
         self.DbusSvc = DbusService("org.blueman.Applet", "org.blueman.Applet", "/org/blueman/Applet",
                                    Gio.BusType.SESSION)
         self.DbusSvc.register()
-
-        # Send and receive the device path of the unknown devices with blueman-manager process
-        self.blocked_devices = []
-        self.DbusSvc.add_method("IsDeviceBlocked", ("s"), "b", self.is_device_blocked)
-        self.DbusSvc.add_method("AddBlockedDevice", ("s"), "", self.add_blocked_device)
-
         self.DbusSvc.add_method("GetLogLevel", (), "s", self.get_log_level)
 
         self.Plugins = Plugins(self)
@@ -129,13 +123,6 @@ class BluemanApplet(Gtk.Application):
         logging.info(f"Device removed {path}")
         for plugin in self.Plugins.get_loaded_plugins(AppletPlugin):
             plugin.on_device_removed(path)
-
-    def is_device_blocked(self, path: str) -> bool:
-        return path in self.blocked_devices
-
-    def add_blocked_device(self, path: str) -> None:
-        if path not in self.blocked_devices:
-            self.blocked_devices.append(path)
 
     def get_log_level(self) -> str:
         """

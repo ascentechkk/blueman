@@ -663,9 +663,6 @@ msgstr "非常に高い"
 msgid "Uncategorized"
 msgstr "未分類"
 
-msgid "This device can't be used."
-msgstr "このデバイスは使用できません。"
-
 msgid "Connect"
 msgstr "接続"
 
