@@ -209,7 +209,7 @@ class AudioProfiles(AppletPlugin):
         self.generate_menu()
 
     def on_device_property_changed(self, path: str, key: str, value: Any) -> None:
-        if key == "Connected":
+        if key == "Connected" or key == "Alias":
             self.clear_menu()
             if path not in self.last_selected_audio_profile:
                 self.last_selected_audio_profile[path] = self.default_audio_profile
