@@ -93,7 +93,7 @@ class SystrayDeviceMenu(AppletPlugin):
             key (str): The property that has changed.
             _value (Any): The value of the propety.
         """
-        if key == 'Connected':
+        if key == 'Connected' or key == 'Alias':
             self.add_device_menu()
 
     def generate_device_menu(self, device: Device) -> List['SubmenuItemDict']:
