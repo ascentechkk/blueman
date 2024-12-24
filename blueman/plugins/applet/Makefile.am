@@ -10,7 +10,7 @@ blueman_PYTHON = \
     Menu.py \
     PowerManager.py \
     RemoveBlockedDevice.py \
-    SavePairedStates.py \
+    DeviceStateSaver.py \
     StatusIcon.py \
     StatusNotifierItem.py \
     SystrayDeviceMenu.py

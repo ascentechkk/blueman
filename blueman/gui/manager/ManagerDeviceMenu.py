@@ -345,8 +345,10 @@ class ManagerDeviceMenu(Gtk.Menu):
                 if response_id == Gtk.ResponseType.ACCEPT:
                     assert isinstance(alias_entry, Gtk.Entry)  # https://github.com/python/mypy/issues/2608
                     device.set('Alias', alias_entry.get_text())
+                    self._appl.SaveDeviceState()
                 elif response_id == 1:
                     device.set('Alias', '')
+                    self._appl.SaveDeviceState()
                 dialog.destroy()
 
             builder = Builder("rename-device.ui")
