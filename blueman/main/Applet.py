@@ -5,6 +5,8 @@ from gi.repository import Gio, GLib, Gtk
 import logging
 import os
 import signal
+import subprocess as sp
+import time
 from gettext import gettext as _
 from typing import Any, cast, Optional
 from blueman.bluemantyping import ObjectPath
@@ -22,6 +24,8 @@ from blueman.plugins.applet.Menu import Menu
 from blueman.plugins.applet.PowerManager import PowerManager
 from blueman.plugins.applet.StatusIcon import StatusIcon
 from blueman.gui.manager.ManagerDeviceList import ManagerDeviceList
+
+MAX_RETRIES: int = 5
 
 
 class BluemanApplet(Gtk.Application):
@@ -83,6 +87,26 @@ class BluemanApplet(Gtk.Application):
             self._active = True
 
     def _on_dbus_name_appeared(self, _connection: Gio.DBusConnection, name: str, owner: str) -> None:
+        """
+        Called when the Bluetooth service is started.
+
+        Execution is paused until the Bluetooth adapter is registered with D-Bus. This is necessary
+        because the registration process takes time. Without this pause, processes relying on the
+        adapter's state may run while it is still unavailable. A timeout is set in case the adapter
+        is never enabled or registered with D-Bus.
+        """
+        retry_count: int = 0
+        while retry_count < MAX_RETRIES:
+            adapter_state: str = sp.check_output(['/usr/bin/bluetoothctl', 'list'], text=True)
+            rfkill_state: str = sp.check_output(['/usr/sbin/rfkill', 'list', 'bluetooth'], text=True)
+            if 'Controller' in adapter_state and 'Soft blocked: no' in rfkill_state:
+                logging.debug('Bluetooth adapter is registered on D-Bus and is unblocked.')
+                break
+            retry_count += 1
+            time.sleep(1)
+        else:
+            logging.warning('Maximum retries reached: Bluetooth adapter not found or still blocked. '
+                            'Adapter: %s, Rfkill: %s', adapter_state, rfkill_state)
         logging.info(f"{name} {owner}")
         self.manager_state = True
         self.plugin_run_state_changed = True
