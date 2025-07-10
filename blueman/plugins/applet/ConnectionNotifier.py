@@ -24,7 +24,7 @@ class ConnectionNotifier(AppletPlugin):
         del self._battery_watcher
 
     def on_device_property_changed(self, path: ObjectPath, key: str, value: Any) -> None:
-        if key == "Connected":
+        if key == "ServicesResolved":
             device = Device(obj_path=path)
             if value:
                 self._notifications[path] = notification = Notification(
@@ -37,6 +37,10 @@ class ConnectionNotifier(AppletPlugin):
                 Notification(device.display_name, _('Disconnected'), icon_name=device["Icon"]).show()
 
     def _on_battery_update(self, path: ObjectPath, value: int) -> None:
+        if value is None:
+            logging.warning('Could not get battery percentage')
+            return
+
         notification = self._notifications.pop(path, None)
         if notification:
             try:
