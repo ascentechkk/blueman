@@ -150,10 +150,6 @@ class ManagerDeviceMenu(Gtk.Menu):
         def success_pair(*args) -> None:
             logging.info("Paired successfully")
 
-            if not device["Trusted"]:
-                device["Trusted"] = True
-                logging.info("Trusted successfully")
-
             self._appl.ConnectService('(os)', device.get_object_path(), uuid,
                                     result_handler=success, error_handler=fail,
                                     timeout=GLib.MAXINT)
@@ -164,6 +160,10 @@ class ManagerDeviceMenu(Gtk.Menu):
             self._appl.ConnectService('(os)', device.get_object_path(), uuid,
                                     result_handler=success, error_handler=fail,
                                     timeout=GLib.MAXINT)
+
+        if not device["Trusted"]:
+            device["Trusted"] = True
+            logging.info("Trusted successfully")
 
         self.set_op(device, _("Connecting…"))
         prog = ManagerProgressbar(self.Blueman, cancellable=uuid == self.GENERIC_CONNECT)
