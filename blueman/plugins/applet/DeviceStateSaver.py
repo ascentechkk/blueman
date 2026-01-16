@@ -35,10 +35,10 @@ class DeviceStateSaver(AppletPlugin):
             return
 
         try:
-            result: sp.CompletedProcess = sp.run(['/usr/bin/python3', self.script_path], check=True)
+            result: sp.CompletedProcess = sp.run(['/venv/bin/python3', self.script_path], check=True)
             logging.debug(f"The states of paired devices are saved.")
         except sp.CalledProcessError as process_error:
-            logging.debug(f"An error occured while saving the states of paired devices: {process_error}")
+            logging.debug(f"An error occured while saving the states of paired devices")
     
     def on_device_property_changed(self, path: str, key: str, value: Any) -> None:
         """
